@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Password;
 use Livewire\Attributes\Layout;
 use Livewire\Volt\Component;
 
-new #[Layout('layouts.guest')] class extends Component
+new #[Layout('layouts.sparx-guest')] class extends Component
 {
     public string $email = '';
 
@@ -37,25 +37,23 @@ new #[Layout('layouts.guest')] class extends Component
 }; ?>
 
 <div>
-    <div class="mb-4 text-sm text-gray-600">
-        {{ __('Forgot your password? No problem. Just let us know your email address and we will email you a password reset link that will allow you to choose a new one.') }}
-    </div>
+    <h1 style="font-size:22px; font-weight:800; color:var(--text); letter-spacing:-.5px; margin-bottom:4px;">Reset your password</h1>
+    <p style="font-size:12.5px; color:var(--text-meta); margin-bottom:22px; line-height:1.6;">Enter your email and we'll send you a secure link to choose a new password.</p>
 
-    <!-- Session Status -->
     <x-auth-session-status class="mb-4" :status="session('status')" />
 
     <form wire:submit="sendPasswordResetLink">
-        <!-- Email Address -->
-        <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input wire:model="email" id="email" class="block mt-1 w-full" type="email" name="email" required autofocus />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
+        <div class="field-label">Email address</div>
+        <div class="input-row" style="margin-bottom:4px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-meta)" stroke-width="1.8" stroke-linecap="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 7l10 7 10-7"/></svg>
+            <input wire:model="email" type="email" name="email" required autofocus placeholder="you@example.com">
         </div>
+        @error('email') <div style="color:var(--danger); font-size:11px; margin-bottom:12px;">{{ $message }}</div> @else <div style="margin-bottom:18px;"></div> @enderror
 
-        <div class="flex items-center justify-end mt-4">
-            <x-primary-button>
-                {{ __('Email Password Reset Link') }}
-            </x-primary-button>
-        </div>
+        <button type="submit" class="btn btn--grad">Email reset link</button>
     </form>
+
+    <p style="font-size:12.5px; color:var(--text-meta); text-align:center; margin-top:20px;">
+        <a href="{{ route('login') }}" wire:navigate style="color:var(--primary); font-weight:600; text-decoration:none;">← Back to sign in</a>
+    </p>
 </div>
