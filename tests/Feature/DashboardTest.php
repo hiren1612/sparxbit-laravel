@@ -61,6 +61,38 @@ class DashboardTest extends TestCase
         $this->assertDatabaseMissing('entries', ['bit_id' => $bit->id, 'date' => $today]);
     }
 
+    public function test_future_start_bit_excluded_until_it_begins(): void
+    {
+        $user = $this->freshUser();
+        $future = Bit::create([
+            'user_id' => $user->id, 'title' => 'Future Habit', 'icon_key' => 'star',
+            'goal_per_week' => 7, 'status' => 'active', 'start_date' => now()->addWeeks(2)->toDateString(),
+        ]);
+
+        // Not shown on today's Home (it hasn't started yet).
+        Livewire::actingAs($user)->test(Dashboard::class)
+            ->assertDontSee('Future Habit');
+    }
+
+    public function test_past_day_toggle_does_not_auto_check_in(): void
+    {
+        $user = $this->freshUser();
+        $bit = Bit::create([
+            'user_id' => $user->id, 'title' => 'Walk', 'icon_key' => 'walk',
+            'goal_per_week' => 7, 'status' => 'active', 'start_date' => now()->subWeek()->toDateString(),
+        ]);
+        $system = $user->bits()->where('is_system', true)->first();
+        $yesterday = now()->subDay()->format('Y-m-d');
+
+        Livewire::actingAs($user)->test(Dashboard::class)
+            ->set('selectedDateISO', $yesterday)
+            ->call('toggle', $bit->id);
+
+        $this->assertDatabaseHas('entries', ['bit_id' => $bit->id, 'date' => $yesterday, 'status' => 'done']);
+        // The Daily Check-In must NOT be auto-stamped for a retroactive past day.
+        $this->assertDatabaseMissing('entries', ['bit_id' => $system->id, 'date' => $yesterday]);
+    }
+
     public function test_cannot_navigate_past_current_week(): void
     {
         $user = $this->freshUser();
