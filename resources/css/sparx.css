@@ -978,3 +978,5 @@ textarea.field-input { height:auto; padding:10px 12px; line-height:1.5; }
 .radio-dot { width:20px; height:20px; border-radius:50%; border:2px solid var(--border-i); flex-shrink:0; display:flex; align-items:center; justify-content:center; }
 .setting-radio.is-active .radio-dot { border-color:var(--primary); }
 .setting-radio.is-active .radio-dot::after { content:''; width:10px; height:10px; border-radius:50%; background:var(--primary); }
+
+[x-cloak] { display: none !important; }

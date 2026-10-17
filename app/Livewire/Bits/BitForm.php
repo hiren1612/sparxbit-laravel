@@ -186,6 +186,10 @@ abstract class BitForm extends Component
             'iconOptions' => self::ICON_OPTIONS,
             'palette' => self::PALETTE,
             'dayButtons' => $sundayFirst ? $sunFirst : $monFirst,
+            'sundayFirst' => $sundayFirst,
+            'startDow' => $sundayFirst ? 0 : 1,
+            'startMin' => $this->startMustBeFuture() ? Carbon::today()->format('Y-m-d') : null,
+            'endMin' => $this->startDate ? Carbon::parse($this->startDate)->addDay()->format('Y-m-d') : null,
         ]);
     }
 }

@@ -58,8 +58,8 @@
     <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:18px;">
         <div>
             <div style="font-size:10px; font-weight:600; color:var(--text-meta); text-transform:uppercase; letter-spacing:.6px; margin-bottom:5px;">Start Date</div>
-            <input type="date" wire:model="startDate" class="field-input">
-            <div style="font-size:10px; color:var(--text-meta); margin-top:4px;">Starts on a {{ auth()->user()->week_starts_on === 'sunday' ? 'Sunday' : 'Monday' }}.</div>
+            <x-date-picker field="startDate" :value="$startDate" :allowed-dow="$startDow" :min="$startMin" :sunday-first="$sundayFirst" placeholder="Pick a date" wire:key="startpicker" />
+            <div style="font-size:10px; color:var(--text-meta); margin-top:4px;">Starts on a {{ $sundayFirst ? 'Sunday' : 'Monday' }}.</div>
             @error('startDate') <div style="font-size:10.5px; color:var(--danger); margin-top:4px; line-height:1.4;">{{ $message }}</div> @enderror
         </div>
         <div>
@@ -67,7 +67,7 @@
             @if ($unlimited)
                 <div style="font-size:13px; font-weight:600; color:var(--text); margin-top:10px;">Unlimited</div>
             @else
-                <input type="date" wire:model="endDate" class="field-input">
+                <x-date-picker field="endDate" :value="$endDate" :allowed-dow="0" :min="$endMin" :sunday-first="$sundayFirst" placeholder="Pick a Sunday" wire:key="endpicker-{{ $startDate }}" />
             @endif
             <div style="display:flex; align-items:center; gap:7px; margin-top:6px;">
                 <button type="button" wire:click="$toggle('unlimited')" class="toggle{{ $unlimited ? ' is-on' : '' }}" style="width:30px; height:17px;" aria-pressed="{{ $unlimited ? 'true' : 'false' }}"></button>

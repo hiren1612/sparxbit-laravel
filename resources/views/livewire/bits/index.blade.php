@@ -24,8 +24,8 @@
                 $barColor = $b['completion'] >= 100 ? 'var(--green)' : ($b['completion'] >= 50 ? 'var(--primary)' : 'var(--orange)');
                 $pctColor = $ended ? 'var(--text-faint)' : $barColor;
             @endphp
-            <div wire:key="row-{{ $b['id'] }}" style="position:relative;">
-                <a href="{{ route('bits.show', $b['id']) }}" wire:navigate class="bitrow" style="opacity:{{ $paused || $ended ? '.55' : '1' }};">
+            <div wire:key="row-{{ $b['id'] }}" class="bitrow" style="opacity:{{ $paused || $ended ? '.55' : '1' }};">
+                <a href="{{ route('bits.show', $b['id']) }}" wire:navigate style="display:flex; align-items:center; gap:12px; flex:1; min-width:0; text-decoration:none;">
                     <div class="bitrow__icon" style="{{ $b['completion'] >= 100 && !$paused ? 'background:var(--green-lt);' : '' }} {{ $paused ? 'filter:grayscale(1);' : '' }}">{{ $b['emoji'] }}</div>
                     <div style="flex:1; min-width:0;">
                         <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px;">
@@ -43,12 +43,11 @@
                         </div>
                         <div class="bitrow__bar"><span style="width:{{ min(100, $b['completion']) }}%; background:{{ $barColor }};"></span></div>
                     </div>
-                    <div style="text-align:right; min-width:44px; flex-shrink:0;">
+                    <div style="text-align:right; min-width:38px; flex-shrink:0;">
                         <div style="font-size:13px; font-weight:700; color:{{ $pctColor }};">{{ $ended ? '—' : $b['completion'].'%' }}</div>
                     </div>
                 </a>
-                <button type="button" wire:click="openAction('{{ $b['id'] }}')" class="kebab" aria-label="More actions"
-                    style="position:absolute; right:12px; top:50%; transform:translateY(-50%);">⋯</button>
+                <button type="button" wire:click="openAction('{{ $b['id'] }}')" class="kebab" aria-label="More actions">⋯</button>
             </div>
         @empty
             @if ($total === 0)
