@@ -29,7 +29,8 @@ class RegistrationTest extends TestCase
 
         $component->call('register');
 
-        $component->assertRedirect(route('dashboard', absolute: false));
+        // New registrations now go through onboarding first.
+        $component->assertRedirect(route('welcome', absolute: false));
 
         $this->assertAuthenticated();
     }
