@@ -1,8 +1,8 @@
 <div wire:key="dash-{{ $selectedLabel }}">
     {{-- Top bar: avatar · greeting · bell --}}
     <div style="display:flex; align-items:center; gap:12px; margin-bottom:20px;">
-        <a href="{{ route('profile') }}" wire:navigate class="avatar-tile" aria-label="Profile">
-            {{ strtoupper(substr($first, 0, 1)) }}
+        <a href="{{ route('profile') }}" wire:navigate class="avatar-tile" aria-label="Profile" @if($avatarEmoji) style="font-size:24px;" @endif>
+            {{ $avatarEmoji ?: strtoupper(substr($first, 0, 1)) }}
         </a>
         <div style="flex:1; min-width:0;">
             <div style="font-size:12px; color:var(--text-meta); line-height:1;">Good morning</div>
