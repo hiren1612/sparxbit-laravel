@@ -14,6 +14,8 @@ class Show extends Component
 {
     public Bit $bit;
     public bool $confirmDelete = false;
+    public bool $upgradeDismissed = false;
+    public bool $backfillOpen = false;
 
     private const CYCLE = [
         'done' => 'skipped',
@@ -70,6 +72,43 @@ class Show extends Component
         }
     }
 
+    // Goal upgrade: bump the weekly goal by one after 4 perfect weeks.
+    public function upgradeGoal(): void
+    {
+        if ($this->bit->goal_per_week < 7) {
+            $next = $this->bit->goal_per_week + 1;
+            \App\Models\BitChange::create([
+                'bit_id' => $this->bit->id, 'user_id' => $this->bit->user_id,
+                'field' => 'goal', 'from_val' => (string) $this->bit->goal_per_week,
+                'to_val' => (string) $next, 'changed_at' => now(),
+            ]);
+            $this->bit->update(['goal_per_week' => $next]);
+        }
+        $this->upgradeDismissed = true;
+    }
+
+    public function dismissUpgrade(): void
+    {
+        $this->upgradeDismissed = true;
+    }
+
+    // Backfill: toggle a past day done <-> cleared from the "Log past days" sheet.
+    public function backfillToggle(string $iso): void
+    {
+        if ($iso > now()->format('Y-m-d')) {
+            return;
+        }
+        $entry = Entry::where('bit_id', $this->bit->id)->whereDate('date', $iso)->first();
+        if ($entry && $entry->status === 'done') {
+            $entry->delete();
+        } else {
+            Entry::updateOrCreate(
+                ['bit_id' => $this->bit->id, 'date' => $iso],
+                ['user_id' => $this->bit->user_id, 'status' => 'done', 'source' => 'manual', 'completed_at' => now()],
+            );
+        }
+    }
+
     public function archive(): void
     {
         if (! $this->bit->is_system) {
@@ -93,9 +132,11 @@ class Show extends Component
         $todayISO = $today->format('Y-m-d');
         $goal = max(1, $bit->goal_per_week);
 
-        $weekStart = now()->startOfWeek(Carbon::MONDAY)->startOfDay();
+        $sundayFirst = auth()->user()->week_starts_on === 'sunday';
+        $weekStart = now()->startOfWeek($sundayFirst ? Carbon::SUNDAY : Carbon::MONDAY)->startOfDay();
         $weekDays = collect(range(0, 6))->map(fn ($i) => $weekStart->copy()->addDays($i));
         $weekISOs = $weekDays->map(fn ($d) => $d->format('Y-m-d'))->all();
+        $dayLabels = $sundayFirst ? ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'] : ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
 
         $allEntries = Entry::where('bit_id', $bit->id)->get();
         $statusOn = fn ($iso) => optional($allEntries->first(fn ($e) => $e->date->format('Y-m-d') === $iso))->status;
@@ -129,6 +170,38 @@ class Show extends Component
 
         $changes = $bit->changes()->orderByDesc('changed_at')->limit(8)->get();
 
+        // Goal-upgrade prompt — 4 consecutive weeks at/above goal, goal < 7.
+        $showUpgrade = false;
+        if ($goal < 7 && ! $this->upgradeDismissed) {
+            $perfect = 0;
+            for ($w = 0; $w < 4; $w++) {
+                $ws = $weekStart->copy()->subWeeks($w);
+                $done = collect(range(0, 6))->filter(fn ($i) => $statusOn($ws->copy()->addDays($i)->format('Y-m-d')) === 'done')->count();
+                if ($done >= $goal) {
+                    $perfect++;
+                } else {
+                    break;
+                }
+            }
+            $showUpgrade = $perfect >= 4;
+        }
+
+        // Backfill sheet — 30 days ending today, newest first.
+        $backfillDays = collect();
+        if ($this->backfillOpen) {
+            $backfillDays = collect(range(0, 29))->map(function ($i) use ($today, $statusOn, $startISO, $endISO) {
+                $d = $today->copy()->subDays($i);
+                $iso = $d->format('Y-m-d');
+
+                return [
+                    'iso' => $iso,
+                    'label' => $i === 0 ? 'Today' : ($i === 1 ? 'Yesterday' : $d->format('D, j M')),
+                    'done' => $statusOn($iso) === 'done',
+                    'inactive' => ($startISO && $iso < $startISO) || ($endISO && $iso > $endISO),
+                ];
+            });
+        }
+
         return view('livewire.bits.show', [
             'emoji' => Dashboard::emoji($bit->icon_key),
             'categoryLabel' => $bit->category?->name,
@@ -138,8 +211,12 @@ class Show extends Component
             'completion' => $completion,
             'isDoneToday' => $statusOn($todayISO) === 'done',
             'weekStrip' => $weekStrip,
+            'dayLabels' => $dayLabels,
             'history' => $history,
             'changes' => $changes,
+            'showUpgrade' => $showUpgrade,
+            'nextGoal' => $goal + 1,
+            'backfillDays' => $backfillDays,
             'ended' => $endISO && $endISO < $todayISO,
             'endedLong' => $bit->end_date?->format('j M Y'),
             'startLong' => $bit->start_date?->format('j M Y') ?? '—',

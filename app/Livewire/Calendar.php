@@ -144,6 +144,8 @@ class Calendar extends Component
             'view' => $this->view,
             'dayLabels' => $dayLabels,
             'hasBits' => $bits->isNotEmpty(),
+            'hasAnyBits' => $allBits->isNotEmpty(),
+            'periodWord' => $this->view === 'weekly' ? 'this week' : ($this->view === 'monthly' ? 'this month' : 'this year'),
             'todayISO' => $todayISO,
         ];
 

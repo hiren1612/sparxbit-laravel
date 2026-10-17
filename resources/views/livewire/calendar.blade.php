@@ -21,7 +21,13 @@
     </div>
 
     @if (! $hasBits)
-        <div style="padding:40px 16px; text-align:center; color:var(--text-meta); font-size:13px;">No bits were active this period.</div>
+        @if (! $hasAnyBits)
+            <div style="padding:40px 16px; text-align:center; color:var(--text-meta); font-size:13px; line-height:1.6;">
+                No bits yet.<br><a href="{{ route('bits.create') }}" wire:navigate style="color:var(--primary); font-weight:600; text-decoration:none;">Create your first habit</a> on Home.
+            </div>
+        @else
+            <div style="padding:40px 16px; text-align:center; color:var(--text-meta); font-size:13px;">No bits were active {{ $periodWord }}.</div>
+        @endif
 
     @elseif ($view === 'weekly')
         <div>

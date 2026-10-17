@@ -38,6 +38,18 @@ class CalendarTest extends TestCase
         $c->call('setView', 'yearly')->assertSee('Hydrate');
     }
 
+    public function test_empty_state_prompts_first_habit_when_no_bits(): void
+    {
+        $user = User::factory()->create();
+        app(UserProvisioning::class)->seedNewUser($user); // only the system check-in
+        $user = $user->fresh();
+        $user->bits()->where('is_system', false)->delete();
+
+        Livewire::actingAs($user)->test(Calendar::class)
+            ->assertSee('No bits yet')
+            ->assertSee('Create your first habit');
+    }
+
     public function test_toggle_and_period_shift(): void
     {
         [$user, $bit] = $this->userWithBit();

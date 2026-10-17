@@ -7,6 +7,7 @@ use App\Livewire\Bits\Edit;
 use App\Livewire\Bits\Index;
 use App\Livewire\Bits\Show;
 use App\Models\Bit;
+use App\Models\Entry;
 use App\Models\User;
 use App\Services\UserProvisioning;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -143,6 +144,40 @@ class BitsFlowTest extends TestCase
         Livewire::actingAs($user)->test(Show::class, ['bit' => $bit])
             ->call('pauseResume');
         $this->assertDatabaseHas('bits', ['id' => $bit->id, 'status' => 'paused']);
+    }
+
+    public function test_goal_upgrade_after_four_perfect_weeks(): void
+    {
+        $user = $this->user();
+        $bit = $this->bit($user, ['goal_per_week' => 3, 'start_date' => now()->subWeeks(6)->startOfWeek()->toDateString()]);
+
+        // Fill the last 4 weeks with 3 done days each (at goal).
+        for ($w = 0; $w < 4; $w++) {
+            $ws = now()->startOfWeek()->subWeeks($w);
+            foreach (range(0, 2) as $i) {
+                Entry::create(['bit_id' => $bit->id, 'user_id' => $user->id, 'date' => $ws->copy()->addDays($i)->toDateString(), 'status' => 'done', 'source' => 'manual']);
+            }
+        }
+
+        Livewire::actingAs($user)->test(Show::class, ['bit' => $bit])
+            ->assertSee('4 perfect weeks')
+            ->call('upgradeGoal');
+
+        $this->assertDatabaseHas('bits', ['id' => $bit->id, 'goal_per_week' => 4]);
+        $this->assertDatabaseHas('bit_changes', ['bit_id' => $bit->id, 'field' => 'goal', 'to_val' => '4']);
+    }
+
+    public function test_backfill_logs_a_past_day(): void
+    {
+        $user = $this->user();
+        $bit = $this->bit($user, ['start_date' => now()->subWeeks(2)->toDateString()]);
+        $threeDaysAgo = now()->subDays(3)->format('Y-m-d');
+
+        Livewire::actingAs($user)->test(Show::class, ['bit' => $bit])
+            ->set('backfillOpen', true)
+            ->call('backfillToggle', $threeDaysAgo);
+
+        $this->assertDatabaseHas('entries', ['bit_id' => $bit->id, 'date' => $threeDaysAgo, 'status' => 'done']);
     }
 
     public function test_index_archive_and_delete(): void

@@ -73,6 +73,19 @@
         </div>
     </div>
 
+    {{-- Goal upgrade prompt --}}
+    @if ($showUpgrade)
+        <div style="margin-top:16px; padding:16px; border-radius:16px; background:var(--green-lt); border:1px solid rgba(90,214,160,.28);">
+            <div style="font-size:10.5px; font-weight:700; color:#1A7A55; letter-spacing:.6px; text-transform:uppercase; margin-bottom:6px;">🔥 4 perfect weeks in a row</div>
+            <div style="font-size:13px; color:var(--text); font-weight:600; margin-bottom:4px; line-height:1.5;">You've nailed <strong>{{ $bit->title }}</strong> at {{ $goal }}× / week for a month straight.</div>
+            <div style="font-size:12px; color:var(--text-mid); margin-bottom:12px; line-height:1.5;">Ready to push it up to <strong>{{ $nextGoal }}× / week</strong>?</div>
+            <div style="display:flex; gap:8px;">
+                <button type="button" wire:click="upgradeGoal" style="flex:1; height:42px; border-radius:12px; background:var(--grad); border:none; color:#fff; font-size:13px; font-weight:600; cursor:pointer; font-family:inherit; box-shadow:var(--sh-btn);">Try {{ $nextGoal }}× / week</button>
+                <button type="button" wire:click="dismissUpgrade" style="height:42px; padding:0 14px; border-radius:12px; background:var(--surface); border:1px solid var(--border); color:var(--text-mid); font-size:12.5px; font-weight:600; cursor:pointer; font-family:inherit;">Not yet</button>
+            </div>
+        </div>
+    @endif
+
     {{-- This Week --}}
     <div style="margin-top:20px;">
         <div style="background:var(--surface); border-radius:18px; border:1px solid var(--border); padding:16px 18px; box-shadow:var(--sh-sm);">
@@ -89,7 +102,7 @@
                 @foreach ($weekStrip as $i => $d)
                     @php $filled = $d['status'] === 'done'; @endphp
                     <div style="flex:1; display:flex; flex-direction:column; align-items:center; gap:5px;">
-                        <div style="font-size:9px; font-weight:600; color:var(--text-meta); text-transform:uppercase; letter-spacing:.4px;">{{ ['Mo','Tu','We','Th','Fr','Sa','Su'][$i] }}</div>
+                        <div style="font-size:9px; font-weight:600; color:var(--text-meta); text-transform:uppercase; letter-spacing:.4px;">{{ $dayLabels[$i] }}</div>
                         <div style="width:32px; height:32px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:600;
                             color:{{ $filled ? '#fff' : ($d['status'] === 'missed' ? 'var(--orange)' : 'var(--text-meta)') }};
                             background:{{ $filled ? 'var(--primary)' : '#F4F5FC' }}; box-shadow:{{ $filled ? '0 1px 4px rgba(91,141,239,.18)' : 'none' }};">
@@ -157,7 +170,33 @@
                 </div>
             @endforeach
         </div>
+        <button type="button" wire:click="$set('backfillOpen', true)"
+            style="margin-top:10px; width:100%; height:40px; border-radius:12px; background:var(--surface); border:1px dashed var(--border); color:var(--text-mid); font-size:12.5px; font-weight:600; cursor:pointer; font-family:inherit; display:flex; align-items:center; justify-content:center; gap:8px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            Log past days
+        </button>
     </div>
+
+    {{-- Backfill sheet --}}
+    @if ($backfillOpen)
+        <div class="sheet-overlay" wire:click="$set('backfillOpen', false)">
+            <div class="sheet" wire:click.stop style="max-height:80vh; overflow-y:auto;">
+                <div class="sheet__grip"></div>
+                <div style="font-size:15px; font-weight:700; color:var(--text); margin-bottom:4px;">Log past days</div>
+                <div style="font-size:12px; color:var(--text-meta); margin-bottom:14px;">Tap a day to mark {{ $bit->title }} done or clear it.</div>
+                @foreach ($backfillDays as $d)
+                    <button type="button" @if(! $d['inactive']) wire:click="backfillToggle('{{ $d['iso'] }}')" @else disabled @endif
+                        style="width:100%; display:flex; align-items:center; justify-content:space-between; padding:11px 2px; border:none; border-bottom:1px solid var(--border); background:transparent; cursor:{{ $d['inactive'] ? 'default' : 'pointer' }}; font-family:inherit; opacity:{{ $d['inactive'] ? '.5' : '1' }};">
+                        <span style="font-size:13px; font-weight:500; color:var(--text);">{{ $d['label'] }}</span>
+                        <span class="check-circle @if($d['done']) is-done @endif" style="width:28px; height:28px;">
+                            @if($d['done'])<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>@endif
+                        </span>
+                    </button>
+                @endforeach
+                <button type="button" wire:click="$set('backfillOpen', false)" style="width:100%; height:44px; margin-top:14px; border-radius:12px; background:var(--bg-app); border:1px solid var(--border-i); font-size:13px; font-weight:600; color:var(--text-mid); cursor:pointer; font-family:inherit;">Done</button>
+            </div>
+        </div>
+    @endif
 
     {{-- Actions --}}
     <div style="margin-top:20px; display:flex; gap:10px;">
