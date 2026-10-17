@@ -8,6 +8,7 @@ Route::get('/', fn () => auth()->check()
     : redirect()->route('login'));
 
 Route::middleware(['auth'])->group(function () {
+    Route::get('welcome', App\Livewire\Onboarding::class)->name('welcome');
     Route::get('dashboard', App\Livewire\Dashboard::class)->name('dashboard');
     Route::get('bits', App\Livewire\Bits\Index::class)->name('bits.index');
     Route::get('bits/archive', App\Livewire\Bits\Archive::class)->name('bits.archive');

@@ -33,7 +33,7 @@ new #[Layout('layouts.sparx-guest')] class extends Component
 
         Auth::login($user);
 
-        $this->redirect(route('dashboard', absolute: false), navigate: true);
+        $this->redirect(route('welcome', absolute: false), navigate: true);
     }
 }; ?>
 
