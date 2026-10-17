@@ -1,0 +1,921 @@
+/* Sparx Bit — global tokens & utility classes.
+   Mirrors designs/sparx-bit-system.html exactly. Don't add ad-hoc colors here;
+   if you reach for one, extend the palette in packages/shared and use a CSS var. */
+
+:root {
+  /* Backgrounds — lavender-tinted ground */
+  --bg-app: #f5f6fc;
+  --bg-pre: #ebeef8;
+  --surface: #ffffff;
+  --surface-tint: #f5f7fe;
+
+  /* Text — deep navy ink family */
+  --text: #16203a;
+  --text-mid: #545e82;
+  --text-muted: #7c84a0;
+  --text-meta: #9198b6;
+  --text-faint: #b6bcd2;
+
+  /* Primary */
+  --primary: #5b7ff0;
+  --primary-lt: #ebf1fe;
+  --primary-mid: #c5d8fa;
+  --focus-ring: #a8c4f8;
+
+  /* Brand gradient — blue → teal */
+  --grad: linear-gradient(135deg, #5b7ff0 0%, #7c6ff2 48%, #34d1b4 100%);
+  --grad-disabled: linear-gradient(90deg, #dce9f7 0%, #e3eff6 50%, #dff2ec 100%);
+  /* Subtle wash for hero / score cards */
+  --grad-wash: linear-gradient(160deg, rgba(107, 154, 240, 0.13), rgba(67, 201, 174, 0.09) 70%, rgba(255, 138, 91, 0.05));
+
+  /* Semantic */
+  --green: #17b58e;
+  --green-lt: #e0f6f0;
+  --orange: #ff7a50;
+  --orange-lt: #ffe9e0;
+  --danger: #e5484d;
+  --danger-lt: #fef0f0;
+
+  /* Warm accent — streaks & wins */
+  --coral: #ff7a50;
+  --coral-lt: #ffe9e0;
+  --coral-ink: #d8552a;
+
+  /* Extra accent */
+  --violet: #7c6ff2;
+
+  /* Borders — soft & translucent */
+  --border: rgba(26, 33, 64, 0.07);
+  --border-i: rgba(26, 33, 64, 0.05);
+  --divider: rgba(26, 33, 64, 0.05);
+
+  /* Nav */
+  --nav-bg: #171e38;
+
+  /* Radii */
+  --r-xs: 8px;
+  --r-sm: 11px;
+  --r-md: 14px;
+  --r-lg: 16px;
+  --r-xl: 18px;
+  --r-2xl: 24px;
+  --r-full: 999px;
+
+  /* Shadows — layered & soft so cards float */
+  --sh-sm: 0 2px 10px rgba(26, 33, 64, 0.06);
+  --sh-md: 0 6px 18px rgba(26, 33, 64, 0.08);
+  --sh-lg: 0 14px 34px -14px rgba(26, 33, 64, 0.2);
+  --sh-card: 0 14px 34px -16px rgba(26, 33, 64, 0.18);
+  --sh-btn: 0 6px 16px -2px rgba(91, 141, 239, 0.32);
+
+  /* Heights */
+  --btn-h: 44px;
+  --input-h: 42px;
+  --chip-h: 32px;
+
+  font-family: 'DM Sans', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont,
+    'Segoe UI', sans-serif;
+  font-size: 16px;
+  color: var(--text);
+  background: var(--bg-pre);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Dark theme — overrides for the same tokens. Applied when the <html> element
+   has data-theme="dark" (set by the inline boot script in app/layout.tsx or
+   when the user picks Dark in Appearance settings). */
+:root[data-theme='dark'] {
+  --bg-app: #101728;
+  --bg-pre: #0b1020;
+  --surface: #182034;
+  --surface-tint: #1e2740;
+
+  --text: #eaeef9;
+  --text-mid: #aeb7d4;
+  --text-muted: #8891ad;
+  --text-meta: #6e789a;
+  --text-faint: #4d5675;
+
+  --primary: #74a6f7;
+  --primary-lt: #1e2b45;
+  --primary-mid: #2e4271;
+  --focus-ring: #4f7bcc;
+
+  --grad: linear-gradient(135deg, #5b7ff0 0%, #7c6ff2 48%, #34d1b4 100%);
+  --grad-wash: linear-gradient(160deg, rgba(107, 154, 240, 0.2), rgba(67, 201, 174, 0.12) 70%, rgba(255, 138, 91, 0.06));
+
+  --green: #2ec9a4;
+  --green-lt: #0f2a21;
+  --orange: #ff9a6e;
+  --orange-lt: #2a1e10;
+  --danger: #f26b6b;
+  --danger-lt: #2a1418;
+
+  --coral: #ff9a6e;
+  --coral-lt: #2a1a12;
+  --coral-ink: #ffb492;
+
+  --border: rgba(255, 255, 255, 0.08);
+  --border-i: rgba(255, 255, 255, 0.06);
+  --divider: rgba(255, 255, 255, 0.06);
+
+  --nav-bg: #0a0e1c;
+
+  --sh-sm: 0 2px 10px rgba(0, 0, 0, 0.4);
+  --sh-md: 0 6px 18px rgba(0, 0, 0, 0.5);
+  --sh-lg: 0 16px 40px -16px rgba(0, 0, 0, 0.6);
+  --sh-card: 0 16px 40px -18px rgba(0, 0, 0, 0.6);
+  --sh-btn: 0 6px 16px -2px rgba(91, 141, 239, 0.35);
+
+  color-scheme: dark;
+}
+
+/* System mode follows the OS preference. */
+@media (prefers-color-scheme: dark) {
+  :root[data-theme='system'] {
+    --bg-app: #101728;
+    --bg-pre: #0b1020;
+    --surface: #182034;
+    --surface-tint: #1e2740;
+    --text: #eaeef9;
+    --text-mid: #aeb7d4;
+    --text-muted: #8891ad;
+    --text-meta: #6e789a;
+    --text-faint: #4d5675;
+    --primary: #74a6f7;
+    --primary-lt: #1e2b45;
+    --primary-mid: #2e4271;
+    --focus-ring: #4f7bcc;
+    --grad: linear-gradient(135deg, #5b7ff0 0%, #7c6ff2 48%, #34d1b4 100%);
+    --grad-wash: linear-gradient(160deg, rgba(107, 154, 240, 0.2), rgba(67, 201, 174, 0.12) 70%, rgba(255, 138, 91, 0.06));
+    --green: #2ec9a4;
+    --green-lt: #0f2a21;
+    --orange: #ff9a6e;
+    --orange-lt: #2a1e10;
+    --danger: #f26b6b;
+    --danger-lt: #2a1418;
+    --coral: #ff9a6e;
+    --coral-lt: #2a1a12;
+    --coral-ink: #ffb492;
+    --border: rgba(255, 255, 255, 0.08);
+    --border-i: rgba(255, 255, 255, 0.06);
+    --divider: rgba(255, 255, 255, 0.06);
+    --nav-bg: #0a0e1c;
+    --sh-sm: 0 2px 10px rgba(0, 0, 0, 0.4);
+    --sh-md: 0 6px 18px rgba(0, 0, 0, 0.5);
+    --sh-lg: 0 16px 40px -16px rgba(0, 0, 0, 0.6);
+    --sh-card: 0 16px 40px -18px rgba(0, 0, 0, 0.6);
+    color-scheme: dark;
+  }
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  min-height: 100%;
+  background: var(--bg-pre);
+}
+
+a {
+  color: var(--primary);
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+input,
+textarea,
+select {
+  font-family: inherit;
+  font-size: 12px;
+  color: var(--text);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--text-muted);
+}
+
+::selection {
+  background: var(--primary-lt);
+  color: var(--primary);
+}
+
+/* --- Layout primitives --- */
+
+.phone-frame {
+  /* Every screen is mobile-first 390px max-width, centered. */
+  max-width: 390px;
+  margin: 0 auto;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding: 16px 16px 20px;
+  background: var(--bg-pre);
+}
+
+.phone-frame--app {
+  background: var(--bg-app);
+}
+
+.phone-frame--center {
+  align-items: center;
+}
+
+/* --- Logo badge (brand gradient circle with 3-line icon) --- */
+
+.logo-badge {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--grad);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.logo-badge--lg {
+  width: 52px;
+  height: 52px;
+  border-radius: 18px;
+  box-shadow: 0 4px 14px rgba(91, 141, 239, 0.18);
+}
+
+/* Top row: logo badge + screen label centered */
+.screen-top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+.screen-top-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-mid);
+  flex: 1;
+  text-align: center;
+  margin-right: 38px;
+}
+.welcome-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+/* --- Buttons --- */
+
+.btn {
+  width: 100%;
+  height: var(--btn-h);
+  border-radius: var(--r-md);
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  transition:
+    transform 0.16s ease,
+    box-shadow 0.16s ease;
+}
+.btn:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.btn--grad {
+  background: var(--grad);
+  color: #fff;
+  box-shadow: var(--sh-btn);
+}
+.btn--grad:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(91, 141, 239, 0.22);
+}
+
+.btn--disabled,
+.btn:disabled {
+  background: var(--surface-tint);
+  color: var(--text-meta);
+  cursor: not-allowed;
+  border: 1px solid var(--border-i);
+  box-shadow: none;
+}
+
+.btn--secondary {
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border-i);
+  height: 40px;
+  font-size: 12px;
+  font-weight: 500;
+}
+.btn--secondary:hover:not(:disabled) {
+  background: var(--surface-tint);
+}
+
+.btn--dark {
+  background: #272838;
+  color: #fff;
+  height: 40px;
+  border: none;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.btn--ghost {
+  background: transparent;
+  color: var(--text-muted);
+  border: none;
+  box-shadow: none;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.skip-link {
+  font-size: 12px;
+  color: #b8bbc8;
+  font-weight: 500;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+}
+.skip-link:hover {
+  color: var(--text-mid);
+}
+
+/* --- Form: input row --- */
+
+.field-label {
+  font-size: 9px;
+  font-weight: 500;
+  color: var(--text-faint);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 5px;
+}
+
+.input-row {
+  width: 100%;
+  height: var(--input-h);
+  background: var(--surface);
+  border: 1px solid var(--border-i);
+  border-radius: var(--r-sm);
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  gap: 8px;
+  transition: border-color 0.16s ease;
+}
+.input-row:focus-within,
+.input-row.is-focused {
+  border-color: var(--focus-ring);
+}
+.input-row input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 12px;
+  color: var(--text);
+  height: 100%;
+}
+
+/* --- Divider with "OR" --- */
+
+.or-divider {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 11px 0;
+}
+.or-divider::before,
+.or-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border-i);
+}
+.or-divider span {
+  font-size: 9px;
+  font-weight: 500;
+  color: #c8cad8;
+  letter-spacing: 0.06em;
+}
+
+/* --- Info box (primary-tinted card) --- */
+
+.info-box {
+  background: var(--primary-lt);
+  border-radius: var(--r-sm);
+  padding: 10px 12px;
+  font-size: 10px;
+  color: var(--text-mid);
+  line-height: 1.6;
+}
+.info-box strong {
+  font-weight: 600;
+  color: var(--text);
+}
+
+/* --- Error state --- */
+
+.error-box {
+  background: var(--danger-lt);
+  color: var(--danger);
+  border-radius: var(--r-sm);
+  padding: 9px 12px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+/* --- Spinner --- */
+
+.spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+.spinner--blue {
+  border-color: rgba(91, 141, 239, 0.3);
+  border-top-color: var(--primary);
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* --- Screen titles --- */
+
+.h1-screen {
+  font-size: 19px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.3px;
+  margin-bottom: 4px;
+}
+.h1-screen--lg {
+  font-size: 20px;
+  letter-spacing: -0.4px;
+  line-height: 1.25;
+}
+.sub-screen {
+  font-size: 11px;
+  color: var(--text-meta);
+  line-height: 1.55;
+  margin-bottom: 16px;
+}
+
+/* --- Onboarding dots --- */
+
+.ob-dots {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.ob-dot {
+  height: 5px;
+  width: 5px;
+  border-radius: 3px;
+  background: #e0e1ec;
+}
+.ob-dot--on {
+  width: 16px;
+  background: linear-gradient(90deg, #6b9af0, #6bd9a8);
+}
+
+/* --- Pill (small badge) --- */
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  background: var(--primary-lt);
+  color: var(--primary);
+  border-radius: var(--r-xs);
+  padding: 6px 12px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+/* --- Numbered steps card --- */
+
+.steps-card {
+  width: 100%;
+  background: var(--surface);
+  border-radius: var(--r-md);
+  box-shadow: var(--sh-md);
+  overflow: hidden;
+}
+.steps-card .step-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+}
+.steps-card .step-divider {
+  height: 1px;
+  background: var(--divider);
+  margin: 0 14px;
+}
+.step-num {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #f0f1fa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--primary);
+  margin-top: 1px;
+}
+.step-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 2px;
+}
+.step-sub {
+  font-size: 10px;
+  color: var(--text-meta);
+  line-height: 1.4;
+}
+
+/* --- Goal grid (Goal Selection 8.7) --- */
+
+.goal-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.goal-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 16px 12px 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 9px;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  box-shadow: var(--sh-sm);
+  position: relative;
+  user-select: none;
+  min-height: 88px;
+}
+.goal-card:active {
+  transform: scale(0.97);
+}
+.goal-card .gc-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: var(--surface-tint);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.18s ease;
+}
+.goal-card .gc-title {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-mid);
+  text-align: center;
+  line-height: 1.3;
+}
+.goal-card .gc-check {
+  position: absolute;
+  top: 9px;
+  right: 9px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 1px solid #d8dae8;
+  background: var(--surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.18s ease;
+}
+.goal-card .gc-check-mark {
+  width: 7px;
+  height: 5px;
+  border-left: 2px solid #fff;
+  border-bottom: 2px solid #fff;
+  transform: rotate(-45deg) translate(0.5px, -1px);
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+.goal-card.is-selected {
+  background: #f5f9ff;
+  border-color: var(--focus-ring);
+}
+.goal-card.is-selected .gc-icon {
+  background: var(--primary-lt);
+}
+.goal-card.is-selected .gc-title {
+  color: var(--text);
+  font-weight: 600;
+}
+.goal-card.is-selected .gc-check {
+  background: var(--primary);
+  border-color: var(--primary);
+  box-shadow: 0 1px 4px rgba(91, 141, 239, 0.18);
+}
+.goal-card.is-selected .gc-check-mark {
+  opacity: 1;
+}
+
+/* --- Bit Preferences (8.8) chips --- */
+
+.section-heading {
+  font-size: 9px;
+  font-weight: 500;
+  color: var(--text-meta);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 9px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.section-heading::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--divider);
+}
+
+.chip-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.chip {
+  height: var(--chip-h);
+  padding: 0 14px;
+  border-radius: 16px;
+  background: var(--surface);
+  border: 1px solid #e2e4ec;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-mid);
+  font-family: inherit;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  transition: all 0.16s ease;
+  user-select: none;
+  white-space: nowrap;
+}
+.chip:hover {
+  border-color: var(--primary-mid);
+  color: var(--text);
+}
+.chip.is-selected {
+  background: var(--primary-lt);
+  border-color: var(--focus-ring);
+  font-weight: 600;
+  color: var(--primary);
+}
+.chip.chip--custom {
+  border: 1px dashed var(--focus-ring);
+  background: #f8faff;
+  color: var(--primary);
+  font-weight: 600;
+}
+.chip.chip--custom.is-selected {
+  background: #eef4ff;
+  border-style: solid;
+  border-color: var(--primary);
+}
+
+/* --- Toggle row (settings) --- */
+
+.toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  background: var(--surface);
+  border-radius: var(--r-md);
+  border: 1px solid var(--border-i);
+  box-shadow: var(--sh-sm);
+}
+.toggle-row + .toggle-row {
+  margin-top: 8px;
+}
+.toggle-row__label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 2px;
+}
+.toggle-row__sub {
+  font-size: 11px;
+  color: var(--text-meta);
+}
+.toggle {
+  width: 34px;
+  height: 20px;
+  border-radius: var(--r-full);
+  background: rgba(0, 0, 0, 0.1);
+  position: relative;
+  transition: background 0.2s ease;
+  flex-shrink: 0;
+  cursor: pointer;
+  border: none;
+  padding: 0;
+}
+.toggle.is-on {
+  background: var(--primary);
+}
+.toggle::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.16);
+  transition: transform 0.2s ease;
+}
+.toggle.is-on::after {
+  transform: translateX(14px);
+}
+
+/* --- Progress bar (Loading 8.3) --- */
+
+.progress-track {
+  width: 70px;
+  height: 3px;
+  background: var(--border-i);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.progress-fill-anim {
+  height: 100%;
+  background: linear-gradient(90deg, #6b9af0, #6bd9a8);
+  border-radius: 2px;
+  animation: progress-slide 1.6s ease-in-out infinite;
+}
+@keyframes progress-slide {
+  0% {
+    width: 0;
+    margin-left: 0;
+  }
+  50% {
+    width: 60%;
+    margin-left: 20%;
+  }
+  100% {
+    width: 0;
+    margin-left: 100%;
+  }
+}
+
+/* --- Resend timer pill --- */
+
+.timer-pill {
+  background: rgba(91, 141, 239, 0.1);
+  border-radius: 7px;
+  padding: 2px 7px;
+}
+.timer-pill span {
+  font-size: 11px;
+  font-weight: 600;
+  color: #7aaae8;
+}
+
+/* BitCard entrance — gentle fade-up with a touch of scale. Used on Home so
+   the day's bits cascade in instead of appearing all at once. */
+@keyframes sparx-bit-in {
+  0% {
+    opacity: 0;
+    transform: translateY(8px) scale(0.985);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Check circle pop — runs when isDone flips true so the filled circle
+   has a tactile bounce rather than a plain instant fill. */
+@keyframes sparx-pop {
+  0% { transform: scale(1); }
+  45% { transform: scale(1.18); }
+  100% { transform: scale(1); }
+}
+
+/* Weekly-goal celebration: the bit row briefly glows in its palette color
+   then fades back. Fires once when the user crosses the weekly goal. */
+@keyframes sparx-goal-glow {
+  0%   { box-shadow: 0 0 0 0 rgba(91, 141, 239, 0); }
+  20%  { box-shadow: 0 0 0 6px rgba(91, 141, 239, 0.35), 0 0 24px 4px rgba(91, 141, 239, 0.25); }
+  100% { box-shadow: 0 0 0 0 rgba(91, 141, 239, 0); }
+}
+
+/* Sparkle particles — each particle flies up + out + fades. The translate
+   distance is randomized via a CSS variable set per-particle from JS. */
+@keyframes sparx-sparkle-fly {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0) scale(0.6) rotate(0deg);
+  }
+  20% { opacity: 1; }
+  100% {
+    opacity: 0;
+    transform: translate(var(--sx, 0px), var(--sy, -60px)) scale(1.1) rotate(var(--sr, 120deg));
+  }
+}
+
+/* Toast slide-up from the bottom — used for "Goal met!" notice. */
+@keyframes sparx-toast-in {
+  0%   { opacity: 0; transform: translate(-50%, 24px); }
+  15%  { opacity: 1; transform: translate(-50%, 0); }
+  85%  { opacity: 1; transform: translate(-50%, 0); }
+  100% { opacity: 0; transform: translate(-50%, -8px); }
+}
+
+/* Honor system preference for reduced motion — all decorative animations
+   collapse to instant. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-delay: 0ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* ============================================================
+   Sparx Bit — app components (ported from the web app's inline
+   styles into reusable classes for the Laravel/Livewire build).
+   ============================================================ */
+
+.app-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; }
+.greeting-name { font-size:20px; font-weight:700; letter-spacing:-0.4px; color:var(--text); }
+.greeting-sub { font-size:12px; color:var(--text-meta); margin-top:2px; }
+.avatar-tile { width:44px; height:44px; border-radius:14px; background:var(--grad); display:flex; align-items:center; justify-content:center; color:#fff; font-weight:700; font-size:17px; flex-shrink:0; }
+
+/* Weekly score card */
+.score-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--r-xl); box-shadow:var(--sh-card); padding:18px; margin-bottom:18px; }
+.progress-bar { height:8px; background:var(--surface-tint); border-radius:999px; overflow:hidden; }
+.progress-bar__fill { height:100%; background:var(--grad); border-radius:999px; transition:width .5s ease; }
+
+/* Bit cards (home day list + all bits) */
+.bit-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--r-lg); box-shadow:var(--sh-sm); padding:14px; display:flex; align-items:center; gap:12px; }
+.bit-card--done { opacity:.6; }
+.bit-icon { width:42px; height:42px; border-radius:12px; background:var(--surface-tint); display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0; }
+.bit-title { font-size:14px; font-weight:600; color:var(--text); }
+.bit-meta { font-size:11px; color:var(--text-meta); margin-top:2px; }
+
+.check-circle { width:34px; height:34px; border-radius:50%; border:2px solid #d8dae8; background:var(--surface); display:flex; align-items:center; justify-content:center; color:transparent; cursor:pointer; flex-shrink:0; transition:all .16s ease; }
+.check-circle:hover { border-color:var(--focus-ring); }
+.check-circle.is-done { background:var(--green); border-color:var(--green); color:#fff; }
+
+/* Section label + content card */
+.sec-label { font-size:10px; font-weight:600; color:var(--text-meta); letter-spacing:.1em; text-transform:uppercase; }
+.card { background:var(--surface); border:1px solid var(--border); border-radius:var(--r-xl); box-shadow:var(--sh-sm); padding:16px; }
+
+/* Bottom navigation (dark bar, FAB in the middle) */
+.sparx-nav { position:fixed; bottom:0; left:50%; transform:translateX(-50%); width:100%; max-width:390px; height:58px; background:var(--nav-bg); border-radius:24px 24px 0 0; display:flex; align-items:center; justify-content:space-around; padding:0 14px; z-index:50; }
+.sparx-nav a { display:flex; flex-direction:column; align-items:center; gap:3px; color:#fff; opacity:.28; font-size:9px; font-weight:500; letter-spacing:.3px; text-decoration:none; }
+.sparx-nav a:hover { text-decoration:none; }
+.sparx-nav a.is-active { opacity:.9; }
+.sparx-nav .nav-fab { width:46px; height:46px; border-radius:50%; background:var(--grad); display:flex; align-items:center; justify-content:center; margin-top:-20px; box-shadow:var(--sh-btn); opacity:1; }
+.nav-space { height:74px; } /* keeps content clear of the fixed nav */
+
+/* Full-field input (create forms) */
+.field-input { width:100%; height:var(--input-h); background:var(--surface); border:1px solid var(--border-i); border-radius:var(--r-sm); padding:0 12px; font-size:13px; color:var(--text); outline:none; }
+.field-input:focus { border-color:var(--focus-ring); }
+textarea.field-input { height:auto; padding:10px 12px; line-height:1.5; }

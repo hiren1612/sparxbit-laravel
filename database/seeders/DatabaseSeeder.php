@@ -2,9 +2,12 @@
 
 namespace Database\Seeders;
 
+use App\Models\Bit;
+use App\Models\Entry;
 use App\Models\Goal;
 use App\Models\Suggestion;
 use App\Models\User;
+use App\Services\UserProvisioning;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
@@ -47,7 +50,7 @@ class DatabaseSeeder extends Seeder
         }
 
         // --- Admin user (for the Filament panel at /admin) ---
-        User::firstOrCreate(
+        $admin = User::firstOrCreate(
             ['email' => 'info@yourdeveloperonline.com'],
             [
                 'name' => 'Admin',
@@ -57,5 +60,46 @@ class DatabaseSeeder extends Seeder
                 'onboarding_completed_at' => now(),
             ],
         );
+
+        $this->populateDemo($admin);
+    }
+
+    // Gives a user the Daily Check-In + a few sample bits with check-ins so the
+    // dashboard isn't empty. Idempotent (skips if the user already has bits).
+    private function populateDemo(User $user): void
+    {
+        if ($user->bits()->count() > 0) {
+            return;
+        }
+        UserProvisioning::seedNewUser($user); // system categories + Daily Check-In
+
+        $samples = [
+            ['Walk 30 minutes', 5, 'run'],
+            ['Read 20 pages', 4, 'book'],
+            ['Drink water', 7, 'droplet'],
+        ];
+        foreach ($samples as [$title, $goal, $icon]) {
+            $bit = Bit::create([
+                'user_id' => $user->id,
+                'title' => $title,
+                'goal_per_week' => $goal,
+                'start_date' => now()->subDays(14)->format('Y-m-d'),
+                'icon_key' => $icon,
+                'reminder_days' => [],
+            ]);
+            // Mark a few recent days done (only ones in the current week).
+            foreach (range(0, min(3, $goal - 1)) as $d) {
+                $date = now()->subDays($d);
+                if ($date->isCurrentWeek()) {
+                    Entry::create([
+                        'bit_id' => $bit->id,
+                        'user_id' => $user->id,
+                        'date' => $date->format('Y-m-d'),
+                        'status' => 'done',
+                        'completed_at' => now(),
+                    ]);
+                }
+            }
+        }
     }
 }

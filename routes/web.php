@@ -11,6 +11,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('dashboard', App\Livewire\Dashboard::class)->name('dashboard');
     Route::get('bits', App\Livewire\Bits\Index::class)->name('bits.index');
     Route::get('bits/new', App\Livewire\Bits\Create::class)->name('bits.create');
+    Route::get('calendar', App\Livewire\Calendar::class)->name('calendar');
+    Route::get('stats', App\Livewire\Stats::class)->name('stats');
+    Route::get('profile', App\Livewire\Profile::class)->name('profile');
 
     Route::post('logout', function () {
         Auth::guard('web')->logout();
@@ -20,7 +23,5 @@ Route::middleware(['auth'])->group(function () {
         return redirect()->route('login');
     })->name('logout');
 });
-
-Route::view('profile', 'profile')->middleware(['auth'])->name('profile');
 
 require __DIR__.'/auth.php';
