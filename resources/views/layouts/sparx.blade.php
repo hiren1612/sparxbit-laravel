@@ -1,5 +1,8 @@
+@php
+    $__theme = auth()->check() ? auth()->user()->theme : 'system';
+@endphp
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" @if($__theme && $__theme !== 'system') data-theme="{{ $__theme }}" @endif>
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">

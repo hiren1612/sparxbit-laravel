@@ -970,3 +970,11 @@ textarea.field-input { height:auto; padding:10px 12px; line-height:1.5; }
 
 /* Calendar period nav buttons */
 .cal-nav { width:32px; height:32px; border-radius:50%; background:var(--danger-lt); border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; color:var(--danger); font-size:16px; font-weight:700; font-family:inherit; }
+
+/* Profile row lists */
+.row-list > a:last-child, .row-list > div:last-child { border-bottom:none !important; }
+.setting-radio { display:flex; align-items:center; justify-content:space-between; padding:16px; background:var(--surface); border:1px solid var(--border); border-radius:14px; cursor:pointer; margin-bottom:10px; box-shadow:var(--sh-sm); width:100%; font-family:inherit; text-align:left; }
+.setting-radio.is-active { border-color:var(--primary); background:var(--primary-lt); }
+.radio-dot { width:20px; height:20px; border-radius:50%; border:2px solid var(--border-i); flex-shrink:0; display:flex; align-items:center; justify-content:center; }
+.setting-radio.is-active .radio-dot { border-color:var(--primary); }
+.setting-radio.is-active .radio-dot::after { content:''; width:10px; height:10px; border-radius:50%; background:var(--primary); }

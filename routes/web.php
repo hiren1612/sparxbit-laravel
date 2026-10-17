@@ -17,6 +17,18 @@ Route::middleware(['auth'])->group(function () {
     Route::get('calendar', App\Livewire\Calendar::class)->name('calendar');
     Route::get('stats', App\Livewire\Stats::class)->name('stats');
     Route::get('profile', App\Livewire\Profile::class)->name('profile');
+    Route::get('profile/edit', App\Livewire\Settings\EditProfile::class)->name('profile.edit');
+    Route::get('profile/email', App\Livewire\Settings\Email::class)->name('profile.email');
+    Route::get('profile/appearance', App\Livewire\Settings\Appearance::class)->name('profile.appearance');
+    Route::get('profile/week-start', App\Livewire\Settings\WeekStart::class)->name('profile.weekstart');
+    Route::get('profile/notifications', App\Livewire\Settings\Notifications::class)->name('profile.notifications');
+    Route::get('profile/privacy', App\Livewire\Settings\Privacy::class)->name('profile.privacy');
+    Route::get('profile/my-ad', App\Livewire\Settings\MyAd::class)->name('profile.myad');
+    Route::get('profile/delete', App\Livewire\Settings\DeleteAccount::class)->name('profile.delete');
+    Route::get('refer', App\Livewire\Refer::class)->name('refer');
+    Route::get('categories', App\Livewire\Categories::class)->name('categories');
+    Route::get('feedback', App\Livewire\Feedback::class)->name('feedback');
+    Route::get('about', App\Livewire\About::class)->name('about');
 
     Route::post('logout', function () {
         Auth::guard('web')->logout();
