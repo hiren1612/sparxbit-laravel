@@ -89,7 +89,7 @@ class Stats extends Component
         $rows = [];
         $perBit = [];
         foreach ($bits as $b) {
-            $perBit[$b->id] = ['done' => 0, 'target' => 0];
+            $perBit[$b->id] = ['rawDone' => 0, 'target' => 0];
         }
         $startOf = fn ($b) => $b->start_date?->format('Y-m-d');
         $endOf = fn ($b) => $b->end_date?->format('Y-m-d');
@@ -108,8 +108,11 @@ class Stats extends Component
                 $d = $doneCountOn($b->id, $wk['dayISOs']);
                 $goal += $g;
                 $done += min($d, $g);
+                // Per-bit ring: accumulate the goal target per active week, but
+                // RAW (uncapped) done — the original caps only the TOTAL, so a
+                // big week can offset a light one (InsightsClient rate=min(total,target)/target).
                 $perBit[$b->id]['target'] += $g;
-                $perBit[$b->id]['done'] += min($d, $g);
+                $perBit[$b->id]['rawDone'] += $d;
             }
             if ($goal > 0) {
                 $rows[] = ['label' => $wk['label'], 'goal' => $goal, 'done' => $done, 'pct' => (int) round($done / $goal * 100), 'met' => $done >= $goal];
@@ -125,13 +128,14 @@ class Stats extends Component
         // Per-bit rings (sorted by rate desc).
         $liveBits = $bits->map(function ($b) use ($perBit) {
             $target = max(1, $perBit[$b->id]['target']);
-            $done = $perBit[$b->id]['done'];
+            $raw = $perBit[$b->id]['rawDone'];
+            $done = min($raw, $target);
 
             return [
                 'id' => $b->id, 'emoji' => Dashboard::emoji($b->icon_key), 'name' => $b->title,
-                'done' => min($done, $target), 'target' => $target,
-                'rate' => min($done, $target) / $target,
-                'pct' => (int) round(min($done, $target) / $target * 100),
+                'done' => $done, 'target' => $target,
+                'rate' => $done / $target,
+                'pct' => (int) round($done / $target * 100),
             ];
         })->filter(fn ($b) => $perBit[$b['id']]['target'] > 0)
             ->sortByDesc('rate')->values();
@@ -159,8 +163,14 @@ class Stats extends Component
         // Check-in dots / heatmap + activity grid cells.
         $checkinCells = $this->buildCells($weeks, $sundayFirst, $today, fn ($iso) => in_array($iso, $checkedSet, true) ? 1 : 0);
         $activeBitsCount = max(1, $bits->where('status', 'active')->count());
+        // Activity heatmap counts only real bits — exclude the Daily Check-In
+        // system bit, else every day the app was opened inflates the shade.
+        $systemBitId = $systemBit?->id;
         $doneByDate = [];
         foreach ($entries as $e) {
+            if ($systemBitId && $e->bit_id === $systemBitId) {
+                continue;
+            }
             $iso = $e->date->format('Y-m-d');
             $doneByDate[$iso] = ($doneByDate[$iso] ?? 0) + 1;
         }
