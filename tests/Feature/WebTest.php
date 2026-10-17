@@ -43,7 +43,7 @@ class WebTest extends TestCase
         Livewire::test(Create::class)
             ->set('title', 'Read 20 pages')
             ->set('goalPerWeek', 4)
-            ->set('startDate', now()->format('Y-m-d'))
+            ->set('startDate', now()->next(\Carbon\Carbon::MONDAY)->format('Y-m-d'))
             ->call('save')
             ->assertRedirect(route('dashboard'));
         $this->assertDatabaseHas('bits', ['title' => 'Read 20 pages', 'user_id' => $user->id]);
