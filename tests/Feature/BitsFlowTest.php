@@ -58,6 +58,28 @@ class BitsFlowTest extends TestCase
         $this->assertDatabaseHas('bits', ['user_id' => $user->id, 'title' => 'Meditate', 'goal_per_week' => 3, 'icon_key' => 'lotus']);
     }
 
+    public function test_title_is_trimmed_and_tags_stripped(): void
+    {
+        $user = $this->user();
+
+        Livewire::actingAs($user)->test(Create::class)
+            ->set('title', '  <b>Stretch</b>  ')
+            ->set('why', '  stay limber  ')
+            ->call('save');
+
+        $this->assertDatabaseHas('bits', ['user_id' => $user->id, 'title' => 'Stretch', 'why' => 'stay limber']);
+    }
+
+    public function test_title_auto_suggests_icon_on_create(): void
+    {
+        $user = $this->user();
+
+        Livewire::actingAs($user)->test(Create::class)
+            ->assertSet('iconKey', 'sparkle')
+            ->set('title', 'Morning run')
+            ->assertSet('iconKey', 'run');
+    }
+
     public function test_edit_logs_goal_change(): void
     {
         $user = $this->user();

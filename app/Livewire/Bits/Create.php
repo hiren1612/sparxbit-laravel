@@ -11,6 +11,14 @@ class Create extends BitForm
         $this->startDate = now()->format('Y-m-d');
     }
 
+    // Auto-suggest an icon from the title while the icon is still the default.
+    public function updatedTitle(): void
+    {
+        if ($this->iconKey === 'sparkle' && ($guess = self::guessIcon($this->title))) {
+            $this->iconKey = $guess;
+        }
+    }
+
     protected function mode(): string
     {
         return 'create';

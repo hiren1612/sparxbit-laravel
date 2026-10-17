@@ -1,7 +1,7 @@
 <div style="position:relative;">
     @php
         $isValid = trim($title) !== '' && ($unlimited || $endDate !== '');
-        $days = [[1,'Mo'],[2,'Tu'],[3,'We'],[4,'Th'],[5,'Fr'],[6,'Sa'],[0,'Su']];
+        $selectedCat = $categoryId ? $categories->firstWhere('id', $categoryId) : null;
     @endphp
 
     {{-- Top bar --}}
@@ -18,43 +18,39 @@
         </button>
     </div>
 
-    {{-- Icon --}}
-    <div class="field-label">Icon</div>
-    <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:18px;">
-        @foreach ($iconOptions as $key => $emoji)
-            <button type="button" wire:click="setIcon('{{ $key }}')"
-                style="width:42px; height:42px; border-radius:12px; font-size:20px; cursor:pointer; display:flex; align-items:center; justify-content:center;
-                border:{{ $iconKey === $key ? '2px solid var(--primary)' : '1px solid var(--border-i)' }};
-                background:{{ $iconKey === $key ? 'var(--primary-lt)' : 'var(--surface)' }};">{{ $emoji }}</button>
-        @endforeach
-    </div>
-
     {{-- Title --}}
     <div class="field-label">Title</div>
     <div class="input-row" style="height:52px; border-radius:14px; margin-bottom:18px;">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--text-meta)" stroke-width="2" stroke-linecap="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
         <input type="text" placeholder="e.g. Walk 30 Minutes" maxlength="50" wire:model.live="title" style="font-size:14px; font-weight:500;">
-        <span style="font-size:11px; color:var(--text-meta); font-weight:500;">{{ strlen($title) }}/50</span>
+        <span style="font-size:11px; color:var(--text-meta); font-weight:500;">{{ mb_strlen($title) }}/50</span>
     </div>
     @error('title') <div style="color:var(--danger); font-size:11px; margin:-12px 0 14px;">{{ $message }}</div> @enderror
 
     {{-- Why --}}
     <div class="field-label">What motivates you? <span style="color:var(--text-meta); font-weight:400;">· optional</span></div>
-    <textarea wire:model="why" rows="2" maxlength="300" class="field-input" placeholder="e.g. I want to feel more energised every morning…" style="margin-bottom:18px;"></textarea>
+    <textarea wire:model="why" rows="2" maxlength="300" class="field-input" placeholder="e.g. I want to feel more energised every morning…" style="margin-bottom:18px; min-height:68px;"></textarea>
 
     {{-- Description --}}
     <div class="field-label">Description <span style="color:var(--text-meta); font-weight:400;">· optional</span></div>
-    <textarea wire:model="description" rows="2" maxlength="500" class="field-input" placeholder="e.g. A brisk 30-min walk around the park after breakfast…" style="margin-bottom:18px;"></textarea>
+    <textarea wire:model="description" rows="2" maxlength="500" class="field-input" placeholder="e.g. A brisk 30-min walk around the park after breakfast…" style="margin-bottom:18px; min-height:68px;"></textarea>
 
-    {{-- Goal stepper --}}
+    {{-- Goal stepper (segmented) --}}
     <div class="field-label">Goal per Week</div>
-    <div style="display:flex; align-items:center; justify-content:space-between; background:var(--surface); border:1px solid var(--border-i); border-radius:16px; padding:10px 14px; margin-bottom:18px; box-shadow:var(--sh-sm);">
-        <button type="button" wire:click="setGoal({{ $goalPerWeek - 1 }})" @disabled($goalPerWeek <= 1) class="stepper-btn">−</button>
-        <div style="text-align:center;">
-            <div style="font-size:22px; font-weight:800; color:var(--text); letter-spacing:-.5px;">{{ $goalPerWeek }}×</div>
-            <div style="font-size:10.5px; color:var(--text-meta);">{{ $goalPerWeek === 7 ? 'Every day' : 'per week' }}</div>
+    <div style="background:var(--surface); border:1px solid var(--border-i); border-radius:16px; padding:14px; margin-bottom:18px; box-shadow:var(--sh-sm);">
+        <div style="text-align:center; margin-bottom:12px;">
+            <div style="font-size:24px; font-weight:800; color:var(--primary); letter-spacing:-.5px;">{{ $goalPerWeek === 7 ? 'Daily' : $goalPerWeek.'×' }}</div>
+            <div style="font-size:10.5px; color:var(--text-meta);">{{ $goalPerWeek === 7 ? 'Every day' : $goalPerWeek.' days / week' }}</div>
         </div>
-        <button type="button" wire:click="setGoal({{ $goalPerWeek + 1 }})" @disabled($goalPerWeek >= 7) class="stepper-btn">+</button>
+        <div style="display:flex; gap:5px;">
+            @foreach (range(1, 7) as $n)
+                <button type="button" wire:click="setGoal({{ $n }})"
+                    style="flex:1; height:38px; border-radius:10px; font-size:12px; font-weight:700; cursor:pointer; font-family:inherit;
+                    border:{{ $goalPerWeek === $n ? '1px solid var(--primary)' : '1px solid var(--border-i)' }};
+                    background:{{ $goalPerWeek === $n ? 'var(--primary)' : 'var(--surface)' }};
+                    color:{{ $goalPerWeek === $n ? '#fff' : 'var(--text-mid)' }};">{{ $n === 7 ? '7' : $n }}</button>
+            @endforeach
+        </div>
     </div>
 
     {{-- Duration --}}
@@ -100,7 +96,7 @@
 
     {{-- Reminder --}}
     <div class="field-label">Reminder <span style="color:var(--text-meta); font-weight:400;">· optional</span></div>
-    <div style="background:var(--surface); border:1px solid var(--border-i); border-radius:16px; overflow:hidden; box-shadow:var(--sh-sm); margin-bottom:10px;">
+    <div style="background:var(--surface); border:1px solid var(--border-i); border-radius:16px; overflow:hidden; box-shadow:var(--sh-sm); margin-bottom:18px;">
         <div style="padding:14px 16px; display:flex; align-items:center; justify-content:space-between; gap:12px; {{ $reminderOn ? 'border-bottom:1px solid var(--border-i);' : '' }}">
             <div>
                 <div style="font-size:13px; font-weight:600; color:var(--text-mid);">Enable reminder</div>
@@ -117,7 +113,7 @@
                 <div style="background:var(--bg-app); border:1px solid var(--border-i); border-radius:12px; padding:10px 14px;">
                     <div style="font-size:9.5px; font-weight:600; color:var(--text-meta); letter-spacing:1.1px; text-transform:uppercase; margin-bottom:8px;">Days</div>
                     <div style="display:flex; gap:6px; justify-content:space-between;">
-                        @foreach ($days as [$d, $l])
+                        @foreach ($dayButtons as [$d, $l])
                             @php $explicit = in_array($d, $reminderDays, true); $selected = $explicit || count($reminderDays) === 0; @endphp
                             <button type="button" wire:click="toggleDay({{ $d }})"
                                 style="flex:1; height:36px; border-radius:10px; font-size:12px; font-weight:700; cursor:pointer; font-family:inherit;
@@ -134,13 +130,43 @@
         @endif
     </div>
 
+    {{-- Preview --}}
+    <div class="field-label">Preview</div>
+    <div style="background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:14px; display:flex; align-items:center; gap:12px; box-shadow:var(--sh-sm); margin-bottom:18px;">
+        <div style="width:44px; height:44px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:22px; flex-shrink:0; background:{{ $selectedCat ? $selectedCat->color_hex.'22' : 'var(--surface-tint)' }};">{{ $iconOptions[$iconKey] ?? '✨' }}</div>
+        <div style="flex:1; min-width:0;">
+            <div style="font-size:14px; font-weight:700; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ trim($title) ?: 'Your Bit title' }}</div>
+            <div style="font-size:11px; color:var(--text-meta); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ trim($why) ?: 'Weekly · '.($goalPerWeek === 7 ? 'Daily' : $goalPerWeek.'×') }}</div>
+        </div>
+        @if ($selectedCat)
+            <span style="font-size:10px; font-weight:700; color:{{ $selectedCat->color_hex }}; background:{{ $selectedCat->color_hex }}1a; padding:3px 8px; border-radius:999px; flex-shrink:0;">{{ $selectedCat->name }}</span>
+        @endif
+    </div>
+
+    {{-- Icon --}}
+    <div class="field-label">Icon</div>
+    <div style="display:grid; grid-template-columns:repeat(6, 1fr); gap:8px; margin-bottom:22px;">
+        @foreach ($iconOptions as $key => $emoji)
+            <button type="button" wire:click="setIcon('{{ $key }}')"
+                style="height:46px; border-radius:12px; font-size:22px; cursor:pointer; display:flex; align-items:center; justify-content:center;
+                border:{{ $iconKey === $key ? '2px solid var(--primary)' : '1px solid var(--border-i)' }};
+                background:{{ $iconKey === $key ? 'var(--primary-lt)' : 'var(--surface)' }};">{{ $emoji }}</button>
+        @endforeach
+    </div>
+
+    {{-- Bottom Save --}}
+    <button type="button" wire:click="save" @disabled(! $isValid) class="btn btn--grad" style="{{ $isValid ? '' : 'opacity:.5; cursor:not-allowed;' }}">
+        <span wire:loading.remove wire:target="save">{{ $mode === 'edit' ? 'Save Changes' : 'Create Bit' }}</span>
+        <span wire:loading wire:target="save">Saving…</span>
+    </button>
+
     {{-- New category modal --}}
     @if ($catModalOpen)
         <div class="sheet-overlay" wire:click="$set('catModalOpen', false)">
             <div class="sheet" wire:click.stop>
                 <div class="sheet__grip"></div>
                 <div style="font-size:15px; font-weight:700; color:var(--text); margin-bottom:14px;">New category</div>
-                <input type="text" wire:model="newCatName" class="field-input" placeholder="Category name" maxlength="30" style="margin-bottom:14px;">
+                <input type="text" wire:model="newCatName" class="field-input" placeholder="Category name" maxlength="24" style="margin-bottom:14px;">
                 @error('newCatName') <div style="color:var(--danger); font-size:11px; margin:-10px 0 12px;">{{ $message }}</div> @enderror
                 <div style="display:flex; gap:10px; margin-bottom:18px;">
                     @foreach ($palette as $color)

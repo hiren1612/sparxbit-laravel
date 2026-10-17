@@ -35,6 +35,28 @@ abstract class BitForm extends Component
 
     public const PALETTE = ['#1A7A50', '#2A5FCC', '#B85A10', '#B53760', '#5A3FB0', '#7A5A10'];
 
+    // Keyword → icon_key, used to auto-suggest an icon from the title (create only).
+    private const GUESS = [
+        'walk' => 'walk', 'run' => 'run', 'jog' => 'run', 'read' => 'book', 'book' => 'book',
+        'meditat' => 'lotus', 'yoga' => 'lotus', 'breath' => 'lotus', 'water' => 'droplet',
+        'drink' => 'droplet', 'hydrat' => 'droplet', 'write' => 'pen', 'journal' => 'pen',
+        'work' => 'briefcase', 'sleep' => 'moon', 'bed' => 'moon', 'call' => 'phone',
+        'phone' => 'phone', 'love' => 'heart', 'gratitud' => 'heart', 'learn' => 'brain',
+        'study' => 'brain', 'goal' => 'target', 'home' => 'home', 'family' => 'users', 'friend' => 'users',
+    ];
+
+    public static function guessIcon(string $title): ?string
+    {
+        $t = strtolower($title);
+        foreach (self::GUESS as $kw => $key) {
+            if (str_contains($t, $kw)) {
+                return $key;
+            }
+        }
+
+        return null;
+    }
+
     protected function rules(): array
     {
         return [
@@ -72,7 +94,7 @@ abstract class BitForm extends Component
     public function createCategory(): void
     {
         $this->validate([
-            'newCatName' => 'required|string|max:30',
+            'newCatName' => 'required|string|max:24',
             'newCatColor' => 'required|string',
         ]);
 
@@ -95,10 +117,15 @@ abstract class BitForm extends Component
             $categoryId = null;
         }
 
+        // Trim, and strip any HTML tags from the title (spec: no stored markup).
+        $title = trim(strip_tags($this->title));
+        $why = trim($this->why);
+        $description = trim($this->description);
+
         return [
-            'title' => $this->title,
-            'why' => $this->why ?: null,
-            'description' => $this->description ?: null,
+            'title' => $title,
+            'why' => $why ?: null,
+            'description' => $description ?: null,
             'goal_per_week' => $this->goalPerWeek,
             'start_date' => $this->startDate,
             'end_date' => $this->unlimited ? null : ($this->endDate ?: null),
@@ -116,11 +143,17 @@ abstract class BitForm extends Component
 
     public function render()
     {
+        // Reminder-day buttons follow the user's week-start preference.
+        $monFirst = [[1, 'Mo'], [2, 'Tu'], [3, 'We'], [4, 'Th'], [5, 'Fr'], [6, 'Sa'], [0, 'Su']];
+        $sunFirst = [[0, 'Su'], [1, 'Mo'], [2, 'Tu'], [3, 'We'], [4, 'Th'], [5, 'Fr'], [6, 'Sa']];
+        $sundayFirst = auth()->user()->week_starts_on === 'sunday';
+
         return view('livewire.bits.form', [
             'mode' => $this->mode(),
-            'categories' => auth()->user()->categories()->orderBy('name')->get(),
+            'categories' => auth()->user()->categories()->orderByDesc('is_system')->orderBy('name')->get(),
             'iconOptions' => self::ICON_OPTIONS,
             'palette' => self::PALETTE,
+            'dayButtons' => $sundayFirst ? $sunFirst : $monFirst,
         ]);
     }
 }
