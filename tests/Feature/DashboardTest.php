@@ -93,6 +93,43 @@ class DashboardTest extends TestCase
         $this->assertDatabaseMissing('entries', ['bit_id' => $system->id, 'date' => $yesterday]);
     }
 
+    public function test_mark_all_done_today(): void
+    {
+        $user = $this->freshUser();
+        foreach (['A', 'B'] as $t) {
+            Bit::create(['user_id' => $user->id, 'title' => $t, 'icon_key' => 'star', 'goal_per_week' => 7, 'status' => 'active', 'start_date' => now()->subWeek()->toDateString()]);
+        }
+        $today = now()->format('Y-m-d');
+        $bitIds = $user->bits()->where('is_system', false)->pluck('id');
+
+        Livewire::actingAs($user)->test(Dashboard::class)->call('markAll');
+
+        $this->assertSame(2, Entry::whereIn('bit_id', $bitIds)->whereDate('date', $today)->where('status', 'done')->count());
+    }
+
+    public function test_resume_paused_bit(): void
+    {
+        $user = $this->freshUser();
+        $bit = Bit::create(['user_id' => $user->id, 'title' => 'Paused One', 'icon_key' => 'moon', 'goal_per_week' => 7, 'status' => 'paused', 'start_date' => now()->subWeek()->toDateString()]);
+
+        Livewire::actingAs($user)->test(Dashboard::class)
+            ->assertSee('Ready when you are')
+            ->assertSee('Paused One')
+            ->call('resume', $bit->id);
+
+        $this->assertDatabaseHas('bits', ['id' => $bit->id, 'status' => 'active']);
+    }
+
+    public function test_overview_section_shows_on_current_week(): void
+    {
+        $user = $this->freshUser();
+        Bit::create(['user_id' => $user->id, 'title' => 'C', 'icon_key' => 'run', 'goal_per_week' => 7, 'status' => 'active', 'start_date' => now()->subWeek()->toDateString()]);
+
+        Livewire::actingAs($user)->test(Dashboard::class)
+            ->assertSee('Overview')
+            ->assertSee('On track');
+    }
+
     public function test_cannot_navigate_past_current_week(): void
     {
         $user = $this->freshUser();

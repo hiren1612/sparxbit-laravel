@@ -84,6 +84,43 @@ class Dashboard extends Component
         }
     }
 
+    // Mark every still-undone bit for TODAY as done in one tap (today only).
+    public function markAll(): void
+    {
+        if ($this->selectedDateISO !== now()->format('Y-m-d')) {
+            return;
+        }
+        $user = auth()->user();
+        $iso = $this->selectedDateISO;
+        $bits = $user->bits()->where('status', 'active')->where('is_system', false)
+            ->where(fn ($q) => $q->whereNull('start_date')->orWhereDate('start_date', '<=', $iso))
+            ->where(fn ($q) => $q->whereNull('end_date')->orWhereDate('end_date', '>=', $iso))
+            ->get();
+        foreach ($bits as $b) {
+            Entry::updateOrCreate(
+                ['bit_id' => $b->id, 'date' => $iso],
+                ['user_id' => $user->id, 'status' => 'done', 'source' => 'manual', 'completed_at' => now()],
+            );
+        }
+        if ($bits->isNotEmpty()) {
+            $sys = $user->bits()->where('is_system', true)->first();
+            if ($sys) {
+                Entry::updateOrCreate(
+                    ['bit_id' => $sys->id, 'date' => $iso],
+                    ['user_id' => $user->id, 'status' => 'done', 'source' => 'manual', 'completed_at' => now()],
+                );
+            }
+        }
+    }
+
+    public function resume(string $bitId): void
+    {
+        $bit = auth()->user()->bits()->find($bitId);
+        if ($bit && $bit->status === 'paused') {
+            $bit->update(['status' => 'active']);
+        }
+    }
+
     public function render()
     {
         $user = auth()->user();
@@ -179,6 +216,67 @@ class Dashboard extends Component
         $doneCount = $todayBits->where('doneSelected', true)->count();
         $totalCount = $todayBits->count();
 
+        // Dynamic hero copy (matches the original's motivational titles).
+        $isCurrentWeek = $this->weekOffset === 0;
+        $noun = $isCurrentWeek ? 'week' : 'run';
+        $subWhen = $isCurrentWeek ? 'this week' : ($this->weekOffset === -1 ? 'last week' : strtolower($offsetLabel));
+        if ($targetSum === 0) {
+            $heroTitle = $isCurrentWeek ? 'Ready to begin?' : 'Nothing tracked';
+            $heroSub = 'Add a Bit to start building your week.';
+        } elseif ($weekPct >= 85) {
+            $heroTitle = "Great {$noun}! 🌟";
+            $heroSub = "You completed {$weekPct}% of your Bits {$subWhen}. Keep the momentum going.";
+        } elseif ($weekPct >= 60) {
+            $heroTitle = "Solid {$noun}";
+            $heroSub = "You completed {$weekPct}% of your Bits {$subWhen}.";
+        } elseif ($weekPct > 0) {
+            $heroTitle = 'A start is a start';
+            $heroSub = "You completed {$weekPct}% of your Bits {$subWhen} — every bit counts.";
+        } else {
+            $heroTitle = $isCurrentWeek ? 'Ready to begin?' : 'A quiet week';
+            $heroSub = 'Check off a Bit to get going.';
+        }
+
+        // Overview snapshot + paused bits (current week only).
+        $overview = ['onTrack' => 0, 'reviewing' => 0, 'paused' => 0, 'completed' => 0, 'upcoming' => 0, 'active' => 0];
+        $paused = collect();
+        if ($isCurrentWeek) {
+            $allBits = $user->bits()->where('is_system', false)->get();
+            $recent = collect(range(0, 6))->map(fn ($i) => $today->copy()->subDays($i)->format('Y-m-d'))->all();
+            $recentDone = Entry::where('user_id', $user->id)->where('status', 'done')
+                ->whereIn('date', $recent)->get();
+
+            $activeOv = $allBits->filter(fn ($b) => $b->status === 'active'
+                && (! $b->end_date || $b->end_date->format('Y-m-d') >= $todayISO));
+            $overview['active'] = $activeOv->count();
+            $overview['upcoming'] = $activeOv->filter(fn ($b) => $b->start_date && $b->start_date->format('Y-m-d') > $todayISO)->count();
+            $started = $activeOv->filter(fn ($b) => ! $b->start_date || $b->start_date->format('Y-m-d') <= $todayISO);
+            foreach ($started as $b) {
+                $done = $recentDone->filter(fn ($e) => $e->bit_id === $b->id)->count();
+                $goal = max(1, $b->goal_per_week);
+                $pct = min(1, $done / $goal);
+                if ($pct >= 0.7) {
+                    $overview['onTrack']++;
+                } elseif ($done > 0) {
+                    $overview['reviewing']++;
+                }
+            }
+            $overview['paused'] = $allBits->where('status', 'paused')->count();
+            $overview['completed'] = $allBits->where('status', 'completed')->count();
+
+            $allDoneByBit = Entry::where('user_id', $user->id)->where('status', 'done')
+                ->whereIn('bit_id', $allBits->where('status', 'paused')->pluck('id'))->get()->groupBy('bit_id');
+            $paused = $allBits->where('status', 'paused')->map(fn ($b) => [
+                'id' => $b->id,
+                'title' => $b->title,
+                'emoji' => self::emoji($b->icon_key),
+                'ago' => 'Paused '.$b->updated_at->diffForHumans(null, true).' ago',
+                'doneCount' => optional($allDoneByBit->get($b->id))->count() ?? 0,
+            ])->values();
+        }
+
+        $markAllCount = $isCurrentWeek && $isSelectedToday ? $todayBits->where('doneSelected', false)->count() : 0;
+
         return view('livewire.dashboard', [
             'first' => $user->name ? explode(' ', $user->name)[0] : explode('@', $user->email)[0],
             'weekLabel' => $weekStart->day.' '.$weekStart->format('M').' – '.$weekDates->last()->day.' '.$weekDates->last()->format('M'),
@@ -197,6 +295,12 @@ class Dashboard extends Component
             'selectedLabel' => $selected->format('D, j M'),
             'doneCount' => $doneCount,
             'totalCount' => $totalCount,
+            'isCurrentWeek' => $isCurrentWeek,
+            'heroTitle' => $heroTitle,
+            'heroSub' => $heroSub,
+            'overview' => $overview,
+            'paused' => $paused,
+            'markAllCount' => $markAllCount,
         ]);
     }
 }
