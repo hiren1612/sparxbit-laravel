@@ -59,6 +59,8 @@
         <div>
             <div style="font-size:10px; font-weight:600; color:var(--text-meta); text-transform:uppercase; letter-spacing:.6px; margin-bottom:5px;">Start Date</div>
             <input type="date" wire:model="startDate" class="field-input">
+            <div style="font-size:10px; color:var(--text-meta); margin-top:4px;">Starts on a {{ auth()->user()->week_starts_on === 'sunday' ? 'Sunday' : 'Monday' }}.</div>
+            @error('startDate') <div style="font-size:10.5px; color:var(--danger); margin-top:4px; line-height:1.4;">{{ $message }}</div> @enderror
         </div>
         <div>
             <div style="font-size:10px; font-weight:600; color:var(--text-meta); text-transform:uppercase; letter-spacing:.6px; margin-bottom:5px;">End Date</div>
@@ -73,7 +75,10 @@
             </div>
             @if (! $unlimited && $endDate === '')
                 <div style="font-size:10.5px; color:var(--danger); margin-top:6px; line-height:1.4;">Pick an end date or turn Unlimited back on.</div>
+            @elseif (! $unlimited)
+                <div style="font-size:10px; color:var(--text-meta); margin-top:4px;">Ends on a Sunday.</div>
             @endif
+            @error('endDate') <div style="font-size:10.5px; color:var(--danger); margin-top:4px; line-height:1.4;">{{ $message }}</div> @enderror
         </div>
     </div>
 

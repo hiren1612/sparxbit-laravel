@@ -19,6 +19,7 @@ class Edit extends BitForm
         $this->description = $bit->description ?? '';
         $this->goalPerWeek = $bit->goal_per_week;
         $this->startDate = $bit->start_date?->format('Y-m-d') ?? now()->format('Y-m-d');
+        $this->grandfatheredStart = $this->startDate;
         $this->endDate = $bit->end_date?->format('Y-m-d') ?? '';
         $this->unlimited = $bit->end_date === null;
         $this->categoryId = $bit->category_id;

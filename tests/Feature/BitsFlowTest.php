@@ -80,6 +80,37 @@ class BitsFlowTest extends TestCase
             ->assertSet('iconKey', 'run');
     }
 
+    public function test_start_date_must_be_week_aligned_and_end_on_sunday(): void
+    {
+        $user = $this->user(); // monday-start by default
+
+        // A Wednesday start and a Tuesday end are both rejected.
+        $wed = now()->next(\Carbon\Carbon::WEDNESDAY)->toDateString();
+        $tue = now()->next(\Carbon\Carbon::TUESDAY)->addWeek()->toDateString();
+
+        Livewire::actingAs($user)->test(Create::class)
+            ->set('title', 'Lift')
+            ->set('startDate', $wed)
+            ->set('unlimited', false)
+            ->set('endDate', $tue)
+            ->call('save')
+            ->assertHasErrors(['startDate', 'endDate']);
+
+        // A Monday start with a Sunday end saves cleanly.
+        $mon = now()->next(\Carbon\Carbon::MONDAY)->toDateString();
+        $sun = now()->next(\Carbon\Carbon::MONDAY)->addWeek()->next(\Carbon\Carbon::SUNDAY)->toDateString();
+
+        Livewire::actingAs($user)->test(Create::class)
+            ->set('title', 'Lift')
+            ->set('startDate', $mon)
+            ->set('unlimited', false)
+            ->set('endDate', $sun)
+            ->call('save')
+            ->assertHasNoErrors();
+
+        $this->assertDatabaseHas('bits', ['user_id' => $user->id, 'title' => 'Lift', 'start_date' => $mon]);
+    }
+
     public function test_edit_logs_goal_change(): void
     {
         $user = $this->user();

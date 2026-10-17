@@ -3,6 +3,7 @@
 namespace App\Livewire\Bits;
 
 use App\Models\Category;
+use Illuminate\Support\Carbon;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 
@@ -21,6 +22,10 @@ abstract class BitForm extends Component
     public string $reminderTime = '08:00';
     public array $reminderDays = [];
     public string $iconKey = 'sparkle';
+
+    // An existing (possibly non-week-aligned) start date to grandfather in edit
+    // mode, so editing a bit without touching its start never fails validation.
+    public string $grandfatheredStart = '';
 
     // New-category modal
     public bool $catModalOpen = false;
@@ -57,15 +62,42 @@ abstract class BitForm extends Component
         return null;
     }
 
+    // Bits are week-aligned (matching the original): the start date must fall on
+    // the user's week-start day, and the end date (if any) must be a Sunday
+    // strictly after the start. Create also forbids a past start; edit does not.
+    protected function startMustBeFuture(): bool
+    {
+        return false;
+    }
+
     protected function rules(): array
     {
+        $sundayFirst = auth()->user()->week_starts_on === 'sunday';
+        $startDow = $sundayFirst ? 0 : 1; // 0=Sun, 1=Mon
+        $startDayName = $sundayFirst ? 'Sunday' : 'Monday';
+        $future = $this->startMustBeFuture();
+
         return [
             'title' => 'required|string|max:50',
             'why' => 'nullable|string|max:300',
             'description' => 'nullable|string|max:500',
             'goalPerWeek' => 'required|integer|min:1|max:7',
-            'startDate' => 'required|date',
-            'endDate' => 'nullable|date|after_or_equal:startDate',
+            'startDate' => ['required', 'date', function ($attr, $value, $fail) use ($startDow, $startDayName, $future) {
+                if ($value === $this->grandfatheredStart) {
+                    return; // unchanged existing start — leave it as-is
+                }
+                $d = Carbon::parse($value);
+                if ((int) $d->format('w') !== $startDow) {
+                    $fail("Start date must be a {$startDayName} (bits run in whole weeks).");
+                } elseif ($future && $d->lt(Carbon::today())) {
+                    $fail('Start date cannot be in the past.');
+                }
+            }],
+            'endDate' => ['nullable', 'date', 'after:startDate', function ($attr, $value, $fail) {
+                if ($value && (int) Carbon::parse($value)->format('w') !== 0) {
+                    $fail('End date must be a Sunday.');
+                }
+            }],
             'categoryId' => 'nullable|string',
             'reminderTime' => 'nullable',
         ];
