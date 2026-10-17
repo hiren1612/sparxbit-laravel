@@ -919,3 +919,19 @@ textarea::placeholder {
 .field-input { width:100%; height:var(--input-h); background:var(--surface); border:1px solid var(--border-i); border-radius:var(--r-sm); padding:0 12px; font-size:13px; color:var(--text); outline:none; }
 .field-input:focus { border-color:var(--focus-ring); }
 textarea.field-input { height:auto; padding:10px 12px; line-height:1.5; }
+
+/* ---- Home screen components (faithful port of HomeClient) ---- */
+.bell-btn { width:40px; height:40px; border-radius:50%; background:var(--surface); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; color:var(--text); cursor:pointer; flex-shrink:0; }
+.bell-btn:hover { border-color:var(--focus-ring); }
+
+.nav-btn { width:34px; height:34px; border-radius:10px; background:var(--surface); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; color:var(--text); cursor:pointer; }
+.nav-btn:not(:disabled):hover { border-color:var(--focus-ring); }
+
+.day-circle { position:relative; width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:600; color:var(--text); background:var(--surface-tint); }
+.day-circle.is-today { box-shadow:inset 0 0 0 2px var(--primary); }
+.day-circle.is-selected { background:var(--primary); color:#fff; }
+.day-dot { position:absolute; bottom:3px; left:50%; transform:translateX(-50%); width:4px; height:4px; border-radius:50%; background:var(--green); }
+.day-circle.is-selected .day-dot { background:#fff; }
+
+.hero-card { background:var(--grad); border-radius:var(--r-xl); box-shadow:var(--sh-card); padding:20px; display:flex; align-items:center; gap:16px; }
+.trend-pill { display:inline-block; font-size:11px; font-weight:600; color:#fff; background:rgba(255,255,255,.22); padding:4px 10px; border-radius:999px; }
