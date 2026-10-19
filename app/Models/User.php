@@ -31,6 +31,7 @@ class User extends Authenticatable implements FilamentUser
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'onboarding_completed_at' => 'datetime',
+            'notifications_seen_at' => 'datetime',
             'archived_at' => 'datetime',
             'notifications_push_enabled' => 'boolean',
             'notifications_weekly_summary' => 'boolean',
@@ -69,6 +70,11 @@ class User extends Authenticatable implements FilamentUser
     public function feedback(): HasMany
     {
         return $this->hasMany(Feedback::class);
+    }
+
+    public function pushTokens(): HasMany
+    {
+        return $this->hasMany(PushToken::class);
     }
 
     public function referralsMade(): HasMany

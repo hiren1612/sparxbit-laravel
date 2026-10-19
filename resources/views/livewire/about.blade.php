@@ -8,5 +8,10 @@
     <div style="background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:16px; box-shadow:var(--sh-sm); margin-bottom:16px;">
         <div style="font-size:13px; color:var(--text-mid); line-height:1.7;">Small habits, big change. Sparx Bit helps you build the little daily "Bits" that compound into the person you want to become.</div>
     </div>
+    <div class="row-list" style="background:var(--surface); border:1px solid var(--border); border-radius:16px; overflow:hidden; box-shadow:var(--sh-sm); margin-bottom:16px;">
+        <x-profile-row title="Terms of Service" :href="route('terms')"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></x-profile-row>
+        <x-profile-row title="Privacy Policy" :href="route('privacy')"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></x-profile-row>
+        <x-profile-row title="Open-source Licences" :href="route('licenses')"><path d="M16 18l6-6-6-6M8 6l-6 6 6 6"/></x-profile-row>
+    </div>
     <div style="text-align:center; font-size:11px; color:var(--text-meta); line-height:1.8;">Made with 💙 for people building better days.<br>© {{ date('Y') }} Sparx Bit</div>
 </div>

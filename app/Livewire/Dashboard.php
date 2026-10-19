@@ -280,6 +280,7 @@ class Dashboard extends Component
         return view('livewire.dashboard', [
             'first' => $user->name ? explode(' ', $user->name)[0] : explode('@', $user->email)[0],
             'avatarUrl' => $user->avatar_url,
+            'bellUnread' => \App\Services\NotificationFeed::hasUnread($user),
             'weekLabel' => $weekStart->day.' '.$weekStart->format('M').' – '.$weekDates->last()->day.' '.$weekDates->last()->format('M'),
             'offsetLabel' => $offsetLabel,
             'strip' => $strip,

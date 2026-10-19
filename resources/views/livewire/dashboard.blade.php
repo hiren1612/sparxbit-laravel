@@ -16,11 +16,14 @@
             <div style="font-size:12px; color:var(--text-meta); line-height:1;">Good morning</div>
             <div class="greeting-name" style="font-size:19px; line-height:1.2; margin-top:3px;">{{ $first }}</div>
         </div>
-        <a href="{{ route('notifications.index') }}" wire:navigate class="bell-btn" aria-label="Notifications">
+        <a href="{{ route('notifications.index') }}" wire:navigate class="bell-btn" aria-label="Notifications" style="position:relative;">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
                 <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
             </svg>
+            @if ($bellUnread)
+                <span style="position:absolute; top:8px; right:9px; width:8px; height:8px; border-radius:50%; background:var(--orange); border:1.5px solid var(--surface);"></span>
+            @endif
         </a>
     </div>
 

@@ -15,6 +15,11 @@ Route::get('/', function () {
         : redirect()->route('login');
 });
 
+// Public legal pages (linked from login + About).
+Route::get('terms', App\Livewire\Legal::class)->defaults('doc', 'terms')->name('terms');
+Route::get('privacy', App\Livewire\Legal::class)->defaults('doc', 'privacy')->name('privacy');
+Route::get('licenses', App\Livewire\Legal::class)->defaults('doc', 'licenses')->name('licenses');
+
 Route::middleware(['auth'])->group(function () {
     Route::get('welcome', App\Livewire\Onboarding::class)->name('welcome');
     Route::get('dashboard', App\Livewire\Dashboard::class)->name('dashboard');

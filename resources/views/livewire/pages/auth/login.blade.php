@@ -136,5 +136,11 @@ new #[Layout('layouts.sparx-guest')] class extends Component
             New to Sparx Bit?
             <a href="{{ route('register') }}" wire:navigate style="color:var(--primary); font-weight:600; text-decoration:none;">Create an account</a>
         </p>
+        <p style="font-size:10.5px; color:var(--text-meta); text-align:center; margin-top:14px; line-height:1.6;">
+            By continuing, you agree to our
+            <a href="{{ route('terms') }}" wire:navigate style="color:var(--primary); font-weight:600; text-decoration:none;">Terms</a>
+            and
+            <a href="{{ route('privacy') }}" wire:navigate style="color:var(--primary); font-weight:600; text-decoration:none;">Privacy Policy</a>.
+        </p>
     @endif
 </div>

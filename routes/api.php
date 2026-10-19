@@ -33,6 +33,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('auth/me', [AuthController::class, 'me']);
     Route::post('auth/logout', [AuthController::class, 'logout']);
 
+    // Push notification device tokens (Expo).
+    Route::post('push-tokens', [App\Http\Controllers\Api\PushTokenController::class, 'store']);
+    Route::delete('push-tokens', [App\Http\Controllers\Api\PushTokenController::class, 'destroy']);
+
     // Profile
     Route::get('me', [ProfileController::class, 'me']);
     Route::patch('me', [ProfileController::class, 'update']);
