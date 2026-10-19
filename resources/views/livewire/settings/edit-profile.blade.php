@@ -3,15 +3,47 @@
         <button type="button" wire:click="save" style="height:36px; padding:0 14px; border-radius:11px; background:var(--grad); border:none; color:#fff; font-size:13px; font-weight:600; cursor:pointer; box-shadow:var(--sh-btn);">Save</button>
     </x-page-header>
 
-    <div style="display:flex; justify-content:center; margin-bottom:8px;">
-        <div style="width:80px; height:80px; border-radius:24px; background:var(--grad); display:flex; align-items:center; justify-content:center; font-size:{{ $avatar ? '46px' : '28px' }}; font-weight:700; color:#fff; box-shadow:0 4px 16px rgba(91,141,239,.2);">
-            {{ $avatar ?: strtoupper(substr($name ?: 'U', 0, 1)) }}
+    @php $isEmoji = str_starts_with($currentAvatar, 'emoji:'); @endphp
+
+    {{-- Avatar preview --}}
+    <div style="display:flex; flex-direction:column; align-items:center; gap:14px; margin-bottom:22px;">
+        <div style="width:80px; height:80px; border-radius:24px; overflow:hidden; background:var(--grad); display:flex; align-items:center; justify-content:center; font-size:28px; font-weight:700; color:#fff; box-shadow:0 4px 16px rgba(91,141,239,.2);">
+            @if ($photo)
+                <img src="{{ $photo->temporaryUrl() }}" alt="avatar" style="width:100%; height:100%; object-fit:cover;">
+            @elseif ($isEmoji)
+                <span style="font-size:46px;">{{ substr($currentAvatar, 6) }}</span>
+            @elseif ($currentAvatar)
+                <img src="{{ $currentAvatar }}" alt="avatar" style="width:100%; height:100%; object-fit:cover;">
+            @else
+                {{ strtoupper(substr($name ?: 'U', 0, 1)) }}
+            @endif
         </div>
-    </div>
-    <div style="display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin-bottom:22px;">
-        @foreach ($avatars as $e)
-            <button type="button" wire:click="pickAvatar('{{ $e }}')" style="width:40px; height:40px; border-radius:12px; font-size:20px; cursor:pointer; border:{{ $avatar === $e ? '2px solid var(--primary)' : '1px solid var(--border-i)' }}; background:{{ $avatar === $e ? 'var(--primary-lt)' : 'var(--surface)' }};">{{ $e }}</button>
-        @endforeach
+
+        {{-- Upload / change / remove --}}
+        <div style="display:flex; gap:14px; align-items:center;">
+            <label style="font-size:12px; font-weight:600; color:var(--primary); cursor:pointer;">
+                <span wire:loading.remove wire:target="photo">{{ ($photo || $currentAvatar) ? 'Change photo' : 'Add photo' }}</span>
+                <span wire:loading wire:target="photo">Uploading…</span>
+                <input type="file" wire:model="photo" accept="image/jpeg,image/png,image/webp" style="display:none;">
+            </label>
+            @if ($photo || $currentAvatar)
+                <button type="button" wire:click="removeAvatar" style="font-size:12px; font-weight:600; color:var(--danger); background:none; border:none; cursor:pointer; padding:0; font-family:inherit;">Remove</button>
+            @endif
+        </div>
+        @error('photo') <div style="color:var(--danger); font-size:11px;">{{ $message }}</div> @enderror
+
+        {{-- Emoji picker --}}
+        <div style="width:100%; margin-top:2px;">
+            <div style="font-size:10px; font-weight:600; color:var(--text-meta); letter-spacing:1.1px; text-transform:uppercase; margin-bottom:8px;">Or pick an emoji</div>
+            <div style="display:flex; flex-wrap:wrap; gap:8px;">
+                @foreach ($avatars as $e)
+                    <button type="button" wire:click="pickAvatar('{{ $e }}')"
+                        style="width:38px; height:38px; border-radius:10px; font-size:20px; cursor:pointer; display:flex; align-items:center; justify-content:center; font-family:inherit;
+                        border:1px solid {{ $currentAvatar === 'emoji:'.$e ? 'var(--primary-mid)' : 'var(--border)' }};
+                        background:{{ $currentAvatar === 'emoji:'.$e ? 'var(--primary-lt)' : 'var(--surface)' }};">{{ $e }}</button>
+                @endforeach
+            </div>
+        </div>
     </div>
 
     <div class="field-label">Name</div>

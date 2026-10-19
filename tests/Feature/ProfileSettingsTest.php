@@ -44,6 +44,21 @@ class ProfileSettingsTest extends TestCase
         $this->assertDatabaseHas('users', ['id' => $user->id, 'name' => 'New Name', 'bio' => 'hi', 'avatar_url' => 'emoji:🦊']);
     }
 
+    public function test_edit_profile_uploads_a_photo(): void
+    {
+        \Illuminate\Support\Facades\Storage::fake('public');
+        $user = $this->user();
+
+        Livewire::actingAs($user)->test(EditProfile::class)
+            ->set('name', 'Pic User')
+            ->set('photo', \Illuminate\Http\UploadedFile::fake()->image('me.jpg', 300, 300))
+            ->call('save');
+
+        $user->refresh();
+        $this->assertStringContainsString('/storage/avatars/', $user->avatar_url);
+        \Illuminate\Support\Facades\Storage::disk('public')->assertExists(str_replace('/storage/', '', $user->avatar_url));
+    }
+
     public function test_appearance_and_week_start(): void
     {
         $user = $this->user();

@@ -279,7 +279,7 @@ class Dashboard extends Component
 
         return view('livewire.dashboard', [
             'first' => $user->name ? explode(' ', $user->name)[0] : explode('@', $user->email)[0],
-            'avatarEmoji' => $user->avatar_url && str_starts_with($user->avatar_url, 'emoji:') ? substr($user->avatar_url, 6) : null,
+            'avatarUrl' => $user->avatar_url,
             'weekLabel' => $weekStart->day.' '.$weekStart->format('M').' – '.$weekDates->last()->day.' '.$weekDates->last()->format('M'),
             'offsetLabel' => $offsetLabel,
             'strip' => $strip,

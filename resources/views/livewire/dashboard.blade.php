@@ -1,8 +1,16 @@
 <div wire:key="dash-{{ $selectedLabel }}">
     {{-- Top bar: avatar · greeting · bell --}}
     <div style="display:flex; align-items:center; gap:12px; margin-bottom:20px;">
-        <a href="{{ route('profile') }}" wire:navigate class="avatar-tile" aria-label="Profile" @if($avatarEmoji) style="font-size:24px;" @endif>
-            {{ $avatarEmoji ?: strtoupper(substr($first, 0, 1)) }}
+        @php $avEmoji = $avatarUrl && str_starts_with($avatarUrl, 'emoji:'); @endphp
+        <a href="{{ route('profile') }}" wire:navigate class="avatar-tile" aria-label="Profile"
+            style="overflow:hidden; {{ $avEmoji ? 'font-size:24px;' : '' }}">
+            @if ($avEmoji)
+                {{ substr($avatarUrl, 6) }}
+            @elseif ($avatarUrl)
+                <img src="{{ $avatarUrl }}" alt="" style="width:100%; height:100%; object-fit:cover;">
+            @else
+                {{ strtoupper(substr($first, 0, 1)) }}
+            @endif
         </a>
         <div style="flex:1; min-width:0;">
             <div style="font-size:12px; color:var(--text-meta); line-height:1;">Good morning</div>
