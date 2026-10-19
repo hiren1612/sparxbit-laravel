@@ -12,13 +12,19 @@
     @livewireStyles
 </head>
 <body>
-    <main class="phone-frame" style="padding:40px 28px 48px; display:flex; flex-direction:column; min-height:100vh;">
-        <div style="margin-bottom:28px; display:flex; align-items:center; gap:10px;">
-            <span style="width:34px; height:34px; border-radius:11px; background:var(--grad); display:flex; align-items:center; justify-content:center; font-size:19px; box-shadow:0 4px 12px rgba(91,141,239,.28);">✨</span>
-            <span style="font-size:22px; font-weight:800; letter-spacing:-.6px; color:var(--text);">Sparx Bit</span>
+    <main class="phone-frame auth-frame">
+        <div class="auth-glow" aria-hidden="true"></div>
+
+        <div class="auth-brand">
+            <span class="auth-logo">✨</span>
+            <span class="auth-wordmark">Sparx Bit</span>
         </div>
 
-        {{ $slot }}
+        <div class="auth-card">
+            {{ $slot }}
+        </div>
+
+        <div class="auth-foot">Small habits, big change.</div>
     </main>
     @livewireScripts
 </body>
