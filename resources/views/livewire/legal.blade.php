@@ -8,7 +8,14 @@
         $muted = 'font-size:11px; color:var(--text-meta); margin:0 0 14px;';
     @endphp
 
-    @if ($doc === 'terms')
+    @if (($doc === 'terms' || $doc === 'privacy') && !empty($bodyHtml))
+        {{-- Admin-managed content from the database --}}
+        <div class="legal-body" style="{{ $card }}">
+            @if ($updatedAt)<p style="{{ $muted }}">Last updated: {{ $updatedAt->format('j F Y') }}</p>@endif
+            {!! $bodyHtml !!}
+        </div>
+
+    @elseif ($doc === 'terms')
         <div style="{{ $card }}">
             <p style="{{ $muted }}">Last updated: 19 October 2026</p>
             <p style="{{ $p }}">Welcome to Sparx Bit. By creating an account or using the app (the "Service"), you agree to these Terms of Service. If you do not agree, please do not use the Service.</p>

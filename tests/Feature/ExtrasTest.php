@@ -37,6 +37,16 @@ class ExtrasTest extends TestCase
         $this->get('/login')->assertSee('By continuing');
     }
 
+    public function test_legal_content_is_editable_from_the_backend(): void
+    {
+        // Seeded by the migration.
+        $this->assertDatabaseHas('legal_pages', ['slug' => 'terms']);
+
+        \App\Models\LegalPage::where('slug', 'terms')->update(['body' => '<p>CUSTOM-TERMS-MARKER</p>']);
+
+        $this->get(route('terms'))->assertOk()->assertSee('CUSTOM-TERMS-MARKER');
+    }
+
     public function test_unread_dot_logic_and_mark_seen(): void
     {
         $user = $this->user();
