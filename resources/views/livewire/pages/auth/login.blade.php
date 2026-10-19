@@ -47,9 +47,9 @@ new #[Layout('layouts.sparx-guest')] class extends Component
         Mail::to($email)->send(new MagicLinkMail($url));
 
         $this->magicSent = true;
-        // In local dev there's no real inbox (mail goes to the log), so surface
-        // the link right here to make testing easy.
-        if (app()->environment('local')) {
+        // Only surface the link on-screen when mail has no real inbox (the "log"
+        // driver). With a real mailer (SendGrid etc.) it goes to the inbox.
+        if (config('mail.default') === 'log') {
             $this->devLink = $url;
         }
     }
