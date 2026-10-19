@@ -3,7 +3,9 @@
 namespace App\Providers;
 
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
+use SocialiteProviders\Manager\SocialiteWasCalled;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -22,5 +24,10 @@ class AppServiceProvider extends ServiceProvider
     {
         // API clients (web + mobile) expect raw arrays, not { data: ... }.
         JsonResource::withoutWrapping();
+
+        // Register the "Sign in with Apple" Socialite provider.
+        Event::listen(function (SocialiteWasCalled $event) {
+            $event->extendSocialite('apple', \SocialiteProviders\Apple\Provider::class);
+        });
     }
 }
