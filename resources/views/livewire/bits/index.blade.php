@@ -55,7 +55,7 @@
                     <div style="font-size:40px; line-height:1; margin-bottom:12px;">✨</div>
                     <div style="font-size:15px; font-weight:600; color:var(--text); margin-bottom:6px;">No Bits yet</div>
                     <div style="font-size:13px; color:var(--text-meta); line-height:1.5; margin-bottom:20px;">Bits are the small habits you want to build.<br>Create your first one to get started.</div>
-                    <a href="{{ route('bits.create') }}" wire:navigate class="btn btn--grad" style="max-width:240px; margin:0 auto; text-decoration:none; width:auto; padding:0 20px;">Create your first Bit</a>
+                    <a href="{{ route('bits.create') }}" wire:navigate class="btn btn--grad" style="display:inline-flex; align-items:center; justify-content:center; text-decoration:none; width:auto; height:40px; padding:0 18px; margin:0 auto; font-size:13px;">Create your first Bit</a>
                 </div>
             @else
                 <div style="text-align:center; padding:32px; color:var(--text-meta); font-size:13px;">No Bits match your filters.</div>
