@@ -65,6 +65,7 @@ new #[Layout('layouts.sparx-guest')] class extends Component
 
         event(new Registered($user = User::create($validated)));
         UserProvisioning::seedNewUser($user);
+        UserProvisioning::attributeReferral($user, session()->pull('referral_code'));
         Auth::login($user);
 
         $this->redirect(route('welcome', absolute: false), navigate: true);

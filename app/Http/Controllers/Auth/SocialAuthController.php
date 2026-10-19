@@ -62,6 +62,10 @@ class SocialAuthController extends Controller
             UserProvisioning::seedNewUser($user);
         }
 
+        if ($user->wasRecentlyCreated) {
+            UserProvisioning::attributeReferral($user, request()->session()->pull('referral_code'));
+        }
+
         Auth::login($user, remember: true);
         request()->session()->regenerate();
 

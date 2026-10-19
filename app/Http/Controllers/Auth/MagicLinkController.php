@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Services\MagicLinkService;
+use App\Services\UserProvisioning;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -17,6 +18,10 @@ class MagicLinkController extends Controller
             return redirect()->route('login')->withErrors([
                 'email' => 'That sign-in link is invalid or has expired. Please request a new one.',
             ]);
+        }
+
+        if ($user->wasRecentlyCreated) {
+            UserProvisioning::attributeReferral($user, $request->session()->pull('referral_code'));
         }
 
         Auth::login($user, remember: true);

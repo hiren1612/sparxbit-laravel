@@ -3,9 +3,17 @@
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', fn () => auth()->check()
-    ? redirect()->route('dashboard')
-    : redirect()->route('login'));
+Route::get('/', function () {
+    // Capture a referral code from the invite link (?ref=…) so it can be
+    // attributed when the visitor signs up.
+    if (request()->filled('ref')) {
+        session(['referral_code' => request('ref')]);
+    }
+
+    return auth()->check()
+        ? redirect()->route('dashboard')
+        : redirect()->route('login');
+});
 
 Route::middleware(['auth'])->group(function () {
     Route::get('welcome', App\Livewire\Onboarding::class)->name('welcome');
@@ -17,13 +25,17 @@ Route::middleware(['auth'])->group(function () {
     Route::get('bits/{bit}/edit', App\Livewire\Bits\Edit::class)->name('bits.edit');
     Route::get('calendar', App\Livewire\Calendar::class)->name('calendar');
     Route::get('stats', App\Livewire\Stats::class)->name('stats');
+    Route::get('notifications', App\Livewire\Notifications::class)->name('notifications.index');
     Route::get('profile', App\Livewire\Profile::class)->name('profile');
     Route::get('profile/edit', App\Livewire\Settings\EditProfile::class)->name('profile.edit');
     Route::get('profile/email', App\Livewire\Settings\Email::class)->name('profile.email');
     Route::get('profile/appearance', App\Livewire\Settings\Appearance::class)->name('profile.appearance');
     Route::get('profile/week-start', App\Livewire\Settings\WeekStart::class)->name('profile.weekstart');
     Route::get('profile/notifications', App\Livewire\Settings\Notifications::class)->name('profile.notifications');
+    Route::get('profile/language', App\Livewire\Settings\Language::class)->name('profile.language');
+    Route::get('profile/sync', App\Livewire\Settings\Sync::class)->name('profile.sync');
     Route::get('profile/privacy', App\Livewire\Settings\Privacy::class)->name('profile.privacy');
+    Route::get('help', App\Livewire\Settings\Help::class)->name('help');
     Route::get('profile/my-ad', App\Livewire\Settings\MyAd::class)->name('profile.myad');
     Route::get('profile/delete', App\Livewire\Settings\DeleteAccount::class)->name('profile.delete');
     Route::get('refer', App\Livewire\Refer::class)->name('refer');
