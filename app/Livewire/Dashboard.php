@@ -174,6 +174,10 @@ class Dashboard extends Component
         $realBits = $bits->where('is_system', false)->values();
         $systemBit = $bits->firstWhere('is_system', true);
 
+        // Has the user ever created a Bit (any status)? Drives the empty-state
+        // CTA label: "Create your first Bit" before the first one, "New Bit" after.
+        $hasAnyBits = $user->bits()->where('is_system', false)->exists();
+
         $firstDay = $weekISOs[0];
         $lastDay = $weekISOs[6];
 
@@ -338,6 +342,7 @@ class Dashboard extends Component
             'paused' => $paused,
             'markAllCount' => $markAllCount,
             'ad' => $ad,
+            'hasAnyBits' => $hasAnyBits,
         ]);
     }
 }

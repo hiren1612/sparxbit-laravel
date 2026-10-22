@@ -61,6 +61,27 @@ class DashboardTest extends TestCase
         $this->assertDatabaseMissing('entries', ['bit_id' => $bit->id, 'date' => $today]);
     }
 
+    public function test_empty_state_cta_switches_from_first_bit_to_new_bit(): void
+    {
+        $user = $this->freshUser();
+
+        // Brand-new user (no Bits) sees the first-run copy.
+        Livewire::actingAs($user)->test(Dashboard::class)
+            ->assertSee('Create your first Bit')
+            ->assertDontSee('No Bits this week');
+
+        // After creating a Bit, an empty week shows "New Bit" instead.
+        Bit::create([
+            'user_id' => $user->id, 'title' => 'Stretch', 'icon_key' => 'star',
+            'goal_per_week' => 7, 'status' => 'active', 'start_date' => now()->toDateString(),
+        ]);
+
+        Livewire::actingAs($user)->test(Dashboard::class)
+            ->call('prevWeek') // a week before the Bit existed → no active Bits
+            ->assertSee('New Bit')
+            ->assertDontSee('Create your first Bit');
+    }
+
     public function test_future_start_bit_excluded_until_it_begins(): void
     {
         $user = $this->freshUser();

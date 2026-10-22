@@ -126,7 +126,8 @@
     @empty
         <div class="card" style="text-align:center; padding:40px 20px; color:var(--text-meta);">
             <div style="font-size:36px; margin-bottom:10px;">🌱</div>
-            @if ($isCurrentWeek)
+            @if (! $hasAnyBits)
+                {{-- Brand-new user: no Bits exist yet. --}}
                 <p style="font-size:14px; font-weight:600; color:var(--text); margin-bottom:4px;">No Bits yet</p>
                 <p style="font-size:12px; margin-bottom:16px;">Create your first habit to get started.</p>
                 <a href="{{ route('bits.create') }}" wire:navigate class="btn btn--grad" style="display:inline-flex; align-items:center; justify-content:center; gap:6px; text-decoration:none; width:auto; height:40px; padding:0 18px; margin:0 auto; font-size:13px;">
@@ -134,8 +135,13 @@
                     Create your first Bit
                 </a>
             @else
-                <p style="font-size:14px; font-weight:600; color:var(--text); margin-bottom:4px;">No Bits on this day</p>
-                <p style="font-size:12px;">You had no active Bits scheduled here.</p>
+                {{-- User already has Bits, but none are active on this day/week. --}}
+                <p style="font-size:14px; font-weight:600; color:var(--text); margin-bottom:4px;">No Bits {{ $isCurrentWeek ? 'on this day' : 'this week' }}</p>
+                <p style="font-size:12px; margin-bottom:16px;">You had no active Bits scheduled here.</p>
+                <a href="{{ route('bits.create') }}" wire:navigate class="btn btn--grad" style="display:inline-flex; align-items:center; justify-content:center; gap:6px; text-decoration:none; width:auto; height:40px; padding:0 18px; margin:0 auto; font-size:13px;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    New Bit
+                </a>
             @endif
         </div>
     @endforelse
