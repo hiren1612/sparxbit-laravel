@@ -88,6 +88,12 @@ class SendBitReminders extends Command
             // Browser (Web Push) notification to any subscribed browsers.
             \App\Services\WebPush::sendToUser($user, 'Time for your Bits 💪', $body, url('/dashboard'), 'sparx-reminder');
 
+            // In-app bell feed.
+            \App\Services\NotificationFeed::push($user, [
+                'type' => 'reminder', 'icon' => '⏰', 'tone' => 'blue',
+                'title' => 'Time for your Bits', 'body' => $body,
+            ]);
+
             $sent++;
         }
 

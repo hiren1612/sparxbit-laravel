@@ -82,6 +82,11 @@ class User extends Authenticatable implements FilamentUser
         return $this->hasMany(WebPushSubscription::class);
     }
 
+    public function notifications(): HasMany
+    {
+        return $this->hasMany(UserNotification::class)->latest();
+    }
+
     public function referralsMade(): HasMany
     {
         return $this->hasMany(Referral::class, 'referrer_id');

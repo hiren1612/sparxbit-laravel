@@ -108,6 +108,30 @@ class RemainingFeaturesTest extends TestCase
         Mail::assertSent(BitReminderMail::class, fn ($mail) => $mail->hasTo($user->email));
     }
 
+    public function test_fired_reminder_shows_in_the_bell_feed_and_lights_the_dot(): void
+    {
+        Mail::fake();
+        $user = $this->user(['notifications_push_enabled' => true, 'timezone' => 'UTC', 'notifications_seen_at' => now()]);
+        Bit::create([
+            'user_id' => $user->id, 'title' => 'Stretch', 'icon_key' => 'run',
+            'goal_per_week' => 7, 'status' => 'active', 'start_date' => now()->subWeek()->toDateString(),
+            'reminder_enabled' => true, 'reminder_time' => '09:00:00', 'reminder_days' => [],
+        ]);
+
+        // No bell notification before the reminder fires.
+        $this->assertFalse(\App\Services\NotificationFeed::hasUnread($user->fresh()));
+
+        $this->artisan('bits:send-reminders --force')->assertSuccessful();
+
+        $this->assertDatabaseHas('user_notifications', ['user_id' => $user->id, 'type' => 'reminder']);
+        $this->assertTrue(\App\Services\NotificationFeed::hasUnread($user->fresh()));
+
+        // It appears on the Notifications page, which then clears the dot.
+        \Livewire\Livewire::actingAs($user)->test(\App\Livewire\Notifications::class)
+            ->assertSee('Time for your Bits');
+        $this->assertFalse(\App\Services\NotificationFeed::hasUnread($user->fresh()));
+    }
+
     public function test_browser_syncs_timezone_to_the_account(): void
     {
         $user = $this->user(['timezone' => 'UTC']);

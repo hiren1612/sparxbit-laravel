@@ -12,7 +12,7 @@ class Notifications extends Component
     public function mount(): void
     {
         // Opening the page marks everything as seen (clears the bell dot).
-        auth()->user()->forceFill(['notifications_seen_at' => now()])->save();
+        NotificationFeed::markSeen(auth()->user());
     }
 
     public function render()
