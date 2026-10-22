@@ -11,16 +11,21 @@ use Illuminate\Support\Facades\Mail;
 
 class SendBitReminders extends Command
 {
-    protected $signature = 'bits:send-reminders';
+    protected $signature = 'bits:send-reminders
+        {--force : Send to every enabled reminder now, ignoring the time/day/done checks (for testing)}
+        {--user= : Only this user id (handy with --force)}';
 
-    protected $description = 'Email users a digest of Bits whose reminder time is now';
+    protected $description = 'Email + push users a digest of Bits whose reminder time is now';
 
     public function handle(): int
     {
+        $force = (bool) $this->option('force');
+
         $bits = Bit::query()
             ->where('reminder_enabled', true)
             ->where('status', 'active')
             ->whereNotNull('reminder_time')
+            ->when($this->option('user'), fn ($q) => $q->where('user_id', $this->option('user')))
             ->with('user')
             ->get();
 
@@ -34,23 +39,25 @@ class SendBitReminders extends Command
             $tz = $bit->user->timezone ?: config('app.timezone');
             $local = $now->copy()->setTimezone($tz);
 
-            // Time must match (to the minute).
-            if (substr((string) $bit->reminder_time, 0, 5) !== $local->format('H:i')) {
-                continue;
-            }
+            if (! $force) {
+                // Time must match (to the minute).
+                if (substr((string) $bit->reminder_time, 0, 5) !== $local->format('H:i')) {
+                    continue;
+                }
 
-            // Day-of-week filter (empty = every day).
-            $days = $bit->reminder_days ?? [];
-            if (! empty($days) && ! in_array((int) $local->format('w'), $days, true)) {
-                continue;
-            }
+                // Day-of-week filter (empty = every day).
+                $days = $bit->reminder_days ?? [];
+                if (! empty($days) && ! in_array((int) $local->format('w'), $days, true)) {
+                    continue;
+                }
 
-            // Skip if already completed today.
-            $doneToday = Entry::where('bit_id', $bit->id)
-                ->whereDate('date', $local->format('Y-m-d'))
-                ->where('status', 'done')->exists();
-            if ($doneToday) {
-                continue;
+                // Skip if already completed today.
+                $doneToday = Entry::where('bit_id', $bit->id)
+                    ->whereDate('date', $local->format('Y-m-d'))
+                    ->where('status', 'done')->exists();
+                if ($doneToday) {
+                    continue;
+                }
             }
 
             $due[$bit->user_id]['user'] = $bit->user;

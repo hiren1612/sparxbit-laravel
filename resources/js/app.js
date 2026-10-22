@@ -1,6 +1,25 @@
 import './bootstrap';
 import './webpush';
 
+// Keep the account timezone in sync with the browser so reminders fire at the
+// user's real local time (the DB column defaults to UTC and nothing else sets it).
+(function syncTimezone() {
+    try {
+        const meta = document.querySelector('meta[name="user-tz"]');
+        const csrf = document.querySelector('meta[name="csrf-token"]');
+        if (!meta || !csrf) return;
+        const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        if (!tz || tz === meta.getAttribute('content')) return;
+        fetch('/set-timezone', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf.content, Accept: 'application/json' },
+            body: JSON.stringify({ timezone: tz }),
+        }).then(() => meta.setAttribute('content', tz)).catch(() => {});
+    } catch (e) {
+        /* ignore */
+    }
+})();
+
 // Custom date picker (port of the original React DatePicker): a popover calendar
 // that respects the user's week-start preference and greys out days that aren't
 // selectable (a specific weekday and/or before a minimum date). Writes the chosen

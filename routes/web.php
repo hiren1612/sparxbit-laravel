@@ -48,6 +48,17 @@ Route::middleware(['auth'])->group(function () {
     Route::get('feedback', App\Livewire\Feedback::class)->name('feedback');
     Route::get('about', App\Livewire\About::class)->name('about');
 
+    // Keep the user's timezone in sync with their browser so reminders fire
+    // at their real local time (the column otherwise stays at the UTC default).
+    Route::post('set-timezone', function (\Illuminate\Http\Request $request) {
+        $tz = (string) $request->input('timezone');
+        if (in_array($tz, timezone_identifiers_list(), true) && $request->user()->timezone !== $tz) {
+            $request->user()->update(['timezone' => $tz]);
+        }
+
+        return response()->json(['ok' => true]);
+    })->name('set-timezone');
+
     // Browser (Web Push) notification subscriptions.
     Route::post('web-push/subscribe', [App\Http\Controllers\WebPushController::class, 'subscribe'])->name('webpush.subscribe');
     Route::post('web-push/unsubscribe', [App\Http\Controllers\WebPushController::class, 'unsubscribe'])->name('webpush.unsubscribe');

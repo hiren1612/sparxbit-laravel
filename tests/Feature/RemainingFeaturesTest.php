@@ -91,4 +91,35 @@ class RemainingFeaturesTest extends TestCase
         $this->artisan('bits:send-reminders')->assertSuccessful();
         Mail::assertNothingSent();
     }
+
+    public function test_force_flag_sends_regardless_of_time_and_done_status(): void
+    {
+        Mail::fake();
+        $user = $this->user(['notifications_push_enabled' => true, 'timezone' => 'UTC']);
+        $bit = Bit::create([
+            'user_id' => $user->id, 'title' => 'Journal', 'icon_key' => 'book',
+            'goal_per_week' => 7, 'status' => 'active', 'start_date' => now()->subWeek()->toDateString(),
+            // A time that is NOT the current minute, and already done today — both would normally skip it.
+            'reminder_enabled' => true, 'reminder_time' => now()->addHours(3)->format('H:i').':00', 'reminder_days' => [],
+        ]);
+        \App\Models\Entry::create(['bit_id' => $bit->id, 'user_id' => $user->id, 'date' => now()->toDateString(), 'status' => 'done', 'source' => 'manual']);
+
+        $this->artisan('bits:send-reminders --force')->assertSuccessful();
+        Mail::assertSent(BitReminderMail::class, fn ($mail) => $mail->hasTo($user->email));
+    }
+
+    public function test_browser_syncs_timezone_to_the_account(): void
+    {
+        $user = $this->user(['timezone' => 'UTC']);
+
+        $this->actingAs($user)
+            ->postJson('/set-timezone', ['timezone' => 'Asia/Kolkata'])
+            ->assertOk();
+
+        $this->assertSame('Asia/Kolkata', $user->fresh()->timezone);
+
+        // Invalid zones are ignored.
+        $this->actingAs($user)->postJson('/set-timezone', ['timezone' => 'Not/AZone'])->assertOk();
+        $this->assertSame('Asia/Kolkata', $user->fresh()->timezone);
+    }
 }
