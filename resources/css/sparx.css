@@ -1012,3 +1012,9 @@ textarea.field-input { height:auto; padding:10px 12px; line-height:1.5; }
 .legal-body strong, .legal-body b { color:var(--text); }
 .legal-body ul, .legal-body ol { margin:0 0 10px; padding-left:18px; font-size:12.5px; color:var(--text-mid); line-height:1.7; }
 .legal-body a { color:var(--primary); font-weight:600; }
+
+/* Goal-per-week segmented level picker (fills cumulatively 1..N) */
+.goal-seg { flex:1; height:44px; border-radius:11px; border:1px solid var(--border-i); background:var(--surface); color:var(--text-meta); font-size:14px; font-weight:700; cursor:pointer; font-family:inherit; display:flex; align-items:center; justify-content:center; transition:background .15s ease, color .15s ease, transform .1s ease, box-shadow .15s ease; }
+.goal-seg:hover { border-color:var(--primary-mid); }
+.goal-seg:active { transform:scale(.94); }
+.goal-seg.is-filled { background:var(--grad); border-color:transparent; color:#fff; box-shadow:0 3px 10px -3px rgba(91,127,240,.5); }

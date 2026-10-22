@@ -37,19 +37,19 @@
 
     {{-- Goal stepper (segmented) --}}
     <div class="field-label">Goal per Week</div>
-    <div style="background:var(--surface); border:1px solid var(--border-i); border-radius:16px; padding:14px; margin-bottom:18px; box-shadow:var(--sh-sm);">
-        <div style="text-align:center; margin-bottom:12px;">
-            <div style="font-size:24px; font-weight:800; color:var(--primary); letter-spacing:-.5px;">{{ $goalPerWeek === 7 ? 'Daily' : $goalPerWeek.'×' }}</div>
-            <div style="font-size:10.5px; color:var(--text-meta);">{{ $goalPerWeek === 7 ? 'Every day' : $goalPerWeek.' days / week' }}</div>
+    <div style="background:var(--surface); border:1px solid var(--border-i); border-radius:16px; padding:18px 16px 14px; margin-bottom:18px; box-shadow:var(--sh-sm);">
+        <div style="text-align:center; margin-bottom:16px;">
+            <span style="font-size:32px; font-weight:800; letter-spacing:-1px; background:var(--grad); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;">{{ $goalPerWeek }}</span><span style="font-size:14px; font-weight:700; color:var(--text-meta); margin-left:2px;">× / week</span>
+            <div style="font-size:11px; color:var(--text-meta); margin-top:3px;">{{ $goalPerWeek === 7 ? 'Every day — a daily habit 🔥' : ($goalPerWeek === 1 ? 'Once a week to start' : 'About '.$goalPerWeek.' days a week') }}</div>
         </div>
-        <div style="display:flex; gap:5px;">
+        <div style="display:flex; gap:6px;">
             @foreach (range(1, 7) as $n)
-                <button type="button" wire:click="setGoal({{ $n }})"
-                    style="flex:1; height:38px; border-radius:10px; font-size:12px; font-weight:700; cursor:pointer; font-family:inherit;
-                    border:{{ $goalPerWeek === $n ? '1px solid var(--primary)' : '1px solid var(--border-i)' }};
-                    background:{{ $goalPerWeek === $n ? 'var(--primary)' : 'var(--surface)' }};
-                    color:{{ $goalPerWeek === $n ? '#fff' : 'var(--text-mid)' }};">{{ $n === 7 ? '7' : $n }}</button>
+                <button type="button" wire:click="setGoal({{ $n }})" class="goal-seg{{ $n <= $goalPerWeek ? ' is-filled' : '' }}" aria-label="{{ $n }} per week">{{ $n }}</button>
             @endforeach
+        </div>
+        <div style="display:flex; justify-content:space-between; margin-top:7px; padding:0 3px;">
+            <span style="font-size:9.5px; color:var(--text-meta); font-weight:500;">Once</span>
+            <span style="font-size:9.5px; color:var(--text-meta); font-weight:500;">Daily</span>
         </div>
     </div>
 
