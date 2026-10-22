@@ -37,11 +37,30 @@
 
     {{-- Goal stepper (segmented) --}}
     <div class="field-label">Goal per Week</div>
-    <div style="background:var(--surface); border:1px solid var(--border-i); border-radius:16px; padding:18px 16px 14px; margin-bottom:18px; box-shadow:var(--sh-sm);">
-        <div style="text-align:center; margin-bottom:16px;">
-            <span style="font-size:32px; font-weight:800; letter-spacing:-1px; background:var(--grad); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;">{{ $goalPerWeek }}</span><span style="font-size:14px; font-weight:700; color:var(--text-meta); margin-left:2px;">× / week</span>
-            <div style="font-size:11px; color:var(--text-meta); margin-top:3px;">{{ $goalPerWeek === 7 ? 'Every day — a daily habit 🔥' : ($goalPerWeek === 1 ? 'Once a week to start' : 'About '.$goalPerWeek.' days a week') }}</div>
+    @php $gr = 46; $gc = 2 * M_PI * $gr; $goff = $gc - ($goalPerWeek / 7) * $gc; @endphp
+    <div style="background:var(--surface); border:1px solid var(--border-i); border-radius:16px; padding:20px 16px 16px; margin-bottom:18px; box-shadow:var(--sh-sm); text-align:center;">
+        {{-- Circular goal ring (hero) --}}
+        <div style="position:relative; width:112px; height:112px; margin:0 auto 12px;">
+            <svg width="112" height="112" style="transform:rotate(-90deg);">
+                <defs>
+                    <linearGradient id="goalGrad" x1="0" y1="0" x2="1" y2="1">
+                        <stop offset="0" stop-color="#5b7ff0"/>
+                        <stop offset="1" stop-color="#3dc5bc"/>
+                    </linearGradient>
+                </defs>
+                <circle cx="56" cy="56" r="46" fill="none" stroke="var(--surface-tint)" stroke-width="9"/>
+                <circle cx="56" cy="56" r="46" fill="none" stroke="url(#goalGrad)" stroke-width="9" stroke-linecap="round"
+                    stroke-dasharray="{{ $gc }}" stroke-dashoffset="{{ $goff }}"
+                    style="transition:stroke-dashoffset .45s cubic-bezier(.4,0,.2,1);"/>
+            </svg>
+            <div style="position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center;">
+                <span style="font-size:36px; font-weight:800; color:var(--text); letter-spacing:-1.5px; line-height:1;">{{ $goalPerWeek }}</span>
+                <span style="font-size:9.5px; font-weight:700; color:var(--text-meta); text-transform:uppercase; letter-spacing:.6px; margin-top:2px;">{{ $goalPerWeek === 7 ? 'daily' : '× / week' }}</span>
+            </div>
         </div>
+        <div style="font-size:11.5px; color:var(--text-mid); margin-bottom:14px;">{{ $goalPerWeek === 7 ? 'Every day — a daily habit 🔥' : ($goalPerWeek === 1 ? 'Once a week to start' : $goalPerWeek.' days a week') }}</div>
+
+        {{-- Picker --}}
         <div style="display:flex; gap:6px;">
             @foreach (range(1, 7) as $n)
                 <button type="button" wire:click="setGoal({{ $n }})" class="goal-seg{{ $n <= $goalPerWeek ? ' is-filled' : '' }}" aria-label="{{ $n }} per week">{{ $n }}</button>
