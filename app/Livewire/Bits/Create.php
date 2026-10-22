@@ -9,14 +9,12 @@ class Create extends BitForm
 {
     public function mount(): void
     {
-        // Default to the upcoming week-start on/after today, so the start date
-        // is already valid (week-aligned, not in the past).
+        // Default to the start of the CURRENT week, so a new bit is active this
+        // week and shows up today (not "upcoming" until next Monday).
         $sundayFirst = auth()->user()->week_starts_on === 'sunday';
-        $start = Carbon::today()->startOfWeek($sundayFirst ? Carbon::SUNDAY : Carbon::MONDAY);
-        if ($start->lt(Carbon::today())) {
-            $start->addWeek();
-        }
-        $this->startDate = $start->format('Y-m-d');
+        $this->startDate = Carbon::today()
+            ->startOfWeek($sundayFirst ? Carbon::SUNDAY : Carbon::MONDAY)
+            ->format('Y-m-d');
     }
 
     protected function startMustBeFuture(): bool
