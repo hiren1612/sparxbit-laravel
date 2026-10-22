@@ -277,6 +277,9 @@ class Dashboard extends Component
 
         $markAllCount = $isCurrentWeek && $isSelectedToday ? $todayBits->where('doneSelected', false)->count() : 0;
 
+        // Sponsored "AdBit" — one eligible advertiser, current week only.
+        $ad = $isCurrentWeek ? \App\Services\AdFeed::pickOne($user) : null;
+
         return view('livewire.dashboard', [
             'first' => $user->name ? explode(' ', $user->name)[0] : explode('@', $user->email)[0],
             'avatarUrl' => $user->avatar_url,
@@ -303,6 +306,7 @@ class Dashboard extends Component
             'overview' => $overview,
             'paused' => $paused,
             'markAllCount' => $markAllCount,
+            'ad' => $ad,
         ]);
     }
 }

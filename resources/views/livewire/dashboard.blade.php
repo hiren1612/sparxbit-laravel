@@ -149,6 +149,25 @@
         </button>
     @endif
 
+    {{-- Sponsored AdBit --}}
+    @if ($ad)
+        <div style="background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:13px 15px; margin-top:16px; box-shadow:var(--sh-sm);">
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:6px;">
+                <div style="display:flex; align-items:center; gap:7px; min-width:0;">
+                    <span style="font-size:15px;">📣</span>
+                    <div style="font-size:14px; font-weight:700; color:var(--text); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">{{ $ad['businessName'] }}</div>
+                </div>
+                <span style="flex-shrink:0; font-size:9px; font-weight:600; letter-spacing:.6px; text-transform:uppercase; color:var(--text-meta); background:var(--surface-tint); border-radius:6px; padding:2px 6px;">Sponsored</span>
+            </div>
+            @if (trim((string) $ad['tagline']) !== '')
+                <div style="font-size:12px; color:var(--text-mid); line-height:1.5; margin-bottom:{{ $ad['link'] ? '8px' : '0' }};">{{ $ad['tagline'] }}</div>
+            @endif
+            @if (trim((string) $ad['link']) !== '')
+                <a href="{{ $ad['link'] }}" target="_blank" rel="noopener noreferrer" style="display:inline-block; font-size:11.5px; font-weight:600; color:var(--primary); text-decoration:none;">Learn more →</a>
+            @endif
+        </div>
+    @endif
+
     {{-- Daily Check-In card --}}
     <div class="card" style="display:flex; align-items:center; gap:12px; margin-top:16px; background:var(--surface-tint); position:relative; overflow:hidden;">
         <span style="position:absolute; left:0; top:0; bottom:0; width:4px; background:var(--grad);"></span>
