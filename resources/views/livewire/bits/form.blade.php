@@ -53,9 +53,9 @@
                     stroke-dasharray="{{ $gc }}" stroke-dashoffset="{{ $goff }}"
                     style="transition:stroke-dashoffset .45s cubic-bezier(.4,0,.2,1);"/>
             </svg>
-            <div style="position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center;">
-                <span style="font-size:36px; font-weight:800; color:var(--text); letter-spacing:-1.5px; line-height:1;">{{ $goalPerWeek }}</span>
-                <span style="font-size:9.5px; font-weight:700; color:var(--text-meta); text-transform:uppercase; letter-spacing:.6px; margin-top:2px;">{{ $goalPerWeek === 7 ? 'daily' : '× / week' }}</span>
+            <div style="position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px;">
+                <span style="font-size:26px; line-height:1; filter:drop-shadow(0 2px 4px rgba(255,120,40,.35));">🔥</span>
+                <span style="font-size:30px; font-weight:800; color:var(--text); letter-spacing:-1.5px; line-height:1;">{{ $goalPerWeek }}</span>
             </div>
         </div>
         <div style="font-size:11.5px; color:var(--text-mid); margin-bottom:14px;">{{ $goalPerWeek === 7 ? 'Every day — a daily habit 🔥' : ($goalPerWeek === 1 ? 'Once a week to start' : $goalPerWeek.' days a week') }}</div>
