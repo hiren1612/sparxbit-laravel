@@ -1018,3 +1018,55 @@ textarea.field-input { height:auto; padding:10px 12px; line-height:1.5; }
 .goal-seg:hover { border-color:var(--primary-mid); }
 .goal-seg:active { transform:scale(.94); }
 .goal-seg.is-filled { background:var(--grad); border-color:transparent; color:#fff; box-shadow:0 3px 10px -3px rgba(91,127,240,.5); }
+
+/* 🏆 Achievement celebration overlay */
+[x-cloak] { display:none !important; }
+.celebrate-overlay {
+    position:absolute; inset:0; z-index:60;
+    display:flex; align-items:center; justify-content:center;
+    padding:26px; background:rgba(16,20,34,.55); backdrop-filter:blur(3px);
+    animation:celebFade .25s ease;
+    overflow:hidden;
+}
+@keyframes celebFade { from { opacity:0; } to { opacity:1; } }
+.celebrate-card {
+    position:relative; width:100%; max-width:300px;
+    background:var(--surface); border-radius:22px; padding:28px 24px 22px;
+    text-align:center; box-shadow:0 24px 60px -12px rgba(16,20,34,.5);
+    border:1px solid var(--border-i);
+    animation:celebPop .4s cubic-bezier(.2,.9,.3,1.3);
+}
+@keyframes celebPop { from { opacity:0; transform:translateY(14px) scale(.92); } to { opacity:1; transform:none; } }
+.celebrate-badge {
+    width:76px; height:76px; margin:0 auto; border-radius:50%;
+    display:flex; align-items:center; justify-content:center; font-size:38px;
+    background:var(--grad); box-shadow:0 10px 26px -6px rgba(91,127,240,.55);
+    animation:celebBadge .9s ease .15s both;
+}
+@keyframes celebBadge {
+    0% { transform:scale(.3) rotate(-18deg); opacity:0; }
+    60% { transform:scale(1.12) rotate(6deg); }
+    100% { transform:scale(1) rotate(0); opacity:1; }
+}
+.share-chip {
+    flex:1; max-width:104px; text-decoration:none; text-align:center;
+    padding:9px 0; border-radius:10px; font-size:12px; font-weight:700;
+    transition:transform .1s ease, filter .15s ease;
+}
+.share-chip:active { transform:scale(.95); }
+.share-chip:hover { filter:brightness(1.05); }
+.celebrate-confetti { position:absolute; inset:0; pointer-events:none; }
+.celebrate-confetti span {
+    position:absolute; top:-12px; width:8px; height:13px; border-radius:2px;
+    opacity:.9; animation-name:celebDrop; animation-timing-function:ease-in;
+    animation-iteration-count:1; animation-fill-mode:both;
+}
+@keyframes celebDrop {
+    0% { transform:translateY(-20px) rotate(0); opacity:0; }
+    12% { opacity:1; }
+    100% { transform:translateY(560px) rotate(540deg); opacity:0; }
+}
+@media (prefers-reduced-motion:reduce) {
+    .celebrate-overlay, .celebrate-card, .celebrate-badge { animation:none; }
+    .celebrate-confetti { display:none; }
+}

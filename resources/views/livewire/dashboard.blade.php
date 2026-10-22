@@ -244,4 +244,46 @@
             @endforeach
         </div>
     @endif
+
+    {{-- 🏆 Achievement celebration --}}
+    @if ($celebration)
+        <div class="celebrate-overlay" wire:key="celebrate"
+            x-data="{
+                copied: false,
+                text: @js($celebration['shareText']),
+                url: @js($celebration['shareUrl']),
+                async share() {
+                    const data = { title: 'Sparx Bit', text: this.text, url: this.url };
+                    if (navigator.share) { try { await navigator.share(data); } catch (e) {} }
+                    else { try { await navigator.clipboard.writeText(this.text + ' ' + this.url); this.copied = true; setTimeout(() => this.copied = false, 1800); } catch (e) {} }
+                }
+            }">
+            <div class="celebrate-confetti" aria-hidden="true">
+                @for ($i = 0; $i < 22; $i++)
+                    @php $cols = ['#5b7ff0', '#3dc5bc', '#ff9a5c', '#f6c945', '#e06bd0', '#5ad6a0']; @endphp
+                    <span style="left:{{ random_int(2, 96) }}%; background:{{ $cols[$i % 6] }}; animation-delay:{{ random_int(0, 700) / 1000 }}s; animation-duration:{{ random_int(1600, 2600) / 1000 }}s;"></span>
+                @endfor
+            </div>
+            <div class="celebrate-card" x-transition.scale.origin.center>
+                <div class="celebrate-badge">{{ $celebration['type'] === 'streak' ? '🔥' : '🏆' }}</div>
+                <h2 style="font-size:19px; font-weight:800; color:var(--text); margin:14px 0 6px; letter-spacing:-.3px;">{{ $celebration['title'] }}</h2>
+                <p style="font-size:12.5px; color:var(--text-mid); line-height:1.6; margin:0 0 20px;">{{ $celebration['body'] }}</p>
+
+                <button type="button" class="btn btn--grad" x-on:click="share()" style="margin-bottom:10px;">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:2px;"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                    <span x-show="!copied">Share your trophy</span>
+                    <span x-show="copied" x-cloak>Copied! ✓</span>
+                </button>
+
+                {{-- Quick social share --}}
+                <div style="display:flex; gap:8px; justify-content:center; margin-bottom:16px;">
+                    <a href="https://wa.me/?text={{ urlencode($celebration['shareText'].' '.$celebration['shareUrl']) }}" target="_blank" rel="noopener" class="share-chip" style="background:#25D36620; color:#1a9e4b;">WhatsApp</a>
+                    <a href="https://twitter.com/intent/tweet?text={{ urlencode($celebration['shareText']) }}&url={{ urlencode($celebration['shareUrl']) }}" target="_blank" rel="noopener" class="share-chip" style="background:#0f141a; color:#fff;">X</a>
+                    <a href="https://t.me/share/url?url={{ urlencode($celebration['shareUrl']) }}&text={{ urlencode($celebration['shareText']) }}" target="_blank" rel="noopener" class="share-chip" style="background:#229ED920; color:#1c86b8;">Telegram</a>
+                </div>
+
+                <button type="button" wire:click="dismissCelebration" style="background:none; border:none; color:var(--text-meta); font-size:13px; font-weight:600; cursor:pointer; font-family:inherit;">Awesome, continue →</button>
+            </div>
+        </div>
+    @endif
 </div>

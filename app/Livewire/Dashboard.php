@@ -12,6 +12,7 @@ class Dashboard extends Component
 {
     public int $weekOffset = 0;
     public string $selectedDateISO = '';
+    public ?array $celebration = null;
 
     private const ICONS = [
         'run' => '🏃', 'walk' => '🚶', 'book' => '📖', 'droplet' => '💧', 'moon' => '🌙',
@@ -28,6 +29,34 @@ class Dashboard extends Component
     public function mount(): void
     {
         $this->selectedDateISO = now()->format('Y-m-d');
+        $this->celebrate();
+    }
+
+    // Award any newly-earned trophies and queue a celebration popup.
+    private function celebrate(): void
+    {
+        $achievement = \App\Services\AchievementService::sync(auth()->user());
+        if (! $achievement) {
+            return;
+        }
+
+        $user = auth()->user();
+        if (! $user->referral_code) {
+            $user->update(['referral_code' => \App\Services\UserProvisioning::genReferralCode()]);
+        }
+
+        $this->celebration = [
+            'type' => $achievement->type,
+            'title' => $achievement->title,
+            'body' => $achievement->body,
+            'shareUrl' => url('/?ref='.strtolower($user->referral_code)),
+            'shareText' => 'I just unlocked "'.$achievement->title.'" on Sparx Bit! 🎉 Build better habits with me:',
+        ];
+    }
+
+    public function dismissCelebration(): void
+    {
+        $this->celebration = null;
     }
 
     public function prevWeek(): void
@@ -81,6 +110,7 @@ class Dashboard extends Component
                     );
                 }
             }
+            $this->celebrate();
         }
     }
 
@@ -110,6 +140,7 @@ class Dashboard extends Component
                     ['user_id' => $user->id, 'status' => 'done', 'source' => 'manual', 'completed_at' => now()],
                 );
             }
+            $this->celebrate();
         }
     }
 
