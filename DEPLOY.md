@@ -85,11 +85,24 @@ Add one system cron entry so the scheduler fires `bits:send-reminders` every min
 * * * * * cd /var/www/sparxbit-laravel && php artisan schedule:run >> /dev/null 2>&1
 ```
 
-## 9. (Optional) queue worker
+## 9. Browser push notifications (Web Push)
+Generate a VAPID key pair **once** on the server and keep it stable (if you change
+it after browsers subscribe, those subscriptions stop working):
+```bash
+php artisan webpush:vapid        # writes VAPID_PUBLIC_KEY / VAPID_PRIVATE_KEY to .env
+php artisan config:cache
+```
+Requires the PHP `openssl`, `gmp` (or `bcmath`), `mbstring` and `curl` extensions
+(all standard on the server). Browser popups are delivered by the same
+`bits:send-reminders` job, so the cron in §8 is what makes them fire on schedule;
+the **"Send a test notification"** button on *Profile → Notifications* works
+immediately, independent of the cron. Served over HTTPS only (already the case).
+
+## 10. (Optional) queue worker
 Mail currently sends synchronously, so a worker isn't required. If you later queue
 jobs, run a Supervisor-managed `php artisan queue:work`.
 
-## 10. SendGrid domain + OAuth redirect URIs
+## 11. SendGrid domain + OAuth redirect URIs
 - Finish **SendGrid domain authentication** (CNAMEs) so mail sends as `noreply@…`
   and lands in the inbox.
 - In Google/Apple consoles, register the production redirect URIs:

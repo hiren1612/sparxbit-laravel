@@ -48,6 +48,11 @@ Route::middleware(['auth'])->group(function () {
     Route::get('feedback', App\Livewire\Feedback::class)->name('feedback');
     Route::get('about', App\Livewire\About::class)->name('about');
 
+    // Browser (Web Push) notification subscriptions.
+    Route::post('web-push/subscribe', [App\Http\Controllers\WebPushController::class, 'subscribe'])->name('webpush.subscribe');
+    Route::post('web-push/unsubscribe', [App\Http\Controllers\WebPushController::class, 'unsubscribe'])->name('webpush.unsubscribe');
+    Route::post('web-push/test', [App\Http\Controllers\WebPushController::class, 'test'])->name('webpush.test');
+
     Route::post('logout', function () {
         Auth::guard('web')->logout();
         request()->session()->invalidate();

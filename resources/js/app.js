@@ -1,4 +1,5 @@
 import './bootstrap';
+import './webpush';
 
 // Custom date picker (port of the original React DatePicker): a popover calendar
 // that respects the user's week-start preference and greys out days that aren't

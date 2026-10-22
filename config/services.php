@@ -51,4 +51,10 @@ return [
         'private_key' => env('APPLE_PRIVATE_KEY'),       // contents of the .p8 (or a path)
     ],
 
+    'webpush' => [
+        'public_key' => env('VAPID_PUBLIC_KEY'),
+        'private_key' => env('VAPID_PRIVATE_KEY'),
+        'subject' => env('VAPID_SUBJECT', 'mailto:'.env('MAIL_FROM_ADDRESS', 'info@yourdeveloperonline.com')),
+    ],
+
 ];

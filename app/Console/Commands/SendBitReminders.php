@@ -67,19 +67,20 @@ class SendBitReminders extends Command
 
             Mail::to($user->email)->send(new BitReminderMail($user, $bits));
 
+            $count = $bits->count();
+            $body = $count === 1
+                ? "Don't forget: {$bits->first()->title}"
+                : "You've got {$count} Bits to complete today.";
+
             // Push notification to the user's mobile devices (if any registered).
             $tokens = $user->pushTokens()->pluck('token');
             if ($tokens->isNotEmpty()) {
-                $count = $bits->count();
-                ExpoPush::send(
-                    $tokens,
-                    'Time for your Bits 💪',
-                    $count === 1
-                        ? "Don't forget: {$bits->first()->title}"
-                        : "You've got {$count} Bits to complete today.",
-                    ['screen' => 'home'],
-                );
+                ExpoPush::send($tokens, 'Time for your Bits 💪', $body, ['screen' => 'home']);
             }
+
+            // Browser (Web Push) notification to any subscribed browsers.
+            \App\Services\WebPush::sendToUser($user, 'Time for your Bits 💪', $body, url('/dashboard'), 'sparx-reminder');
+
             $sent++;
         }
 
