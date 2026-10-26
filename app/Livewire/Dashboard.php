@@ -29,7 +29,24 @@ class Dashboard extends Component
     public function mount(): void
     {
         $this->selectedDateISO = now()->format('Y-m-d');
+        $this->autoCheckInToday();
         $this->celebrate();
+    }
+
+    // Landing on Home each day counts the Daily Check-In for today ("Open the
+    // app to count today"). Only creates it if today's entry doesn't exist yet,
+    // and never for a past day — matches the original app's behavior.
+    private function autoCheckInToday(): void
+    {
+        $user = auth()->user();
+        $sys = $user->bits()->where('is_system', true)->first();
+        if (! $sys) {
+            return;
+        }
+        Entry::firstOrCreate(
+            ['bit_id' => $sys->id, 'date' => now()->format('Y-m-d')],
+            ['user_id' => $user->id, 'status' => 'done', 'source' => 'manual', 'completed_at' => now()],
+        );
     }
 
     // Award any newly-earned trophies and queue a celebration popup.

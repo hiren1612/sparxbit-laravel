@@ -82,6 +82,25 @@ class DashboardTest extends TestCase
             ->assertDontSee('Create your first Bit');
     }
 
+    public function test_opening_home_auto_marks_the_daily_checkin_for_today(): void
+    {
+        $user = $this->freshUser();
+        $system = $user->bits()->where('is_system', true)->first();
+        $today = now()->format('Y-m-d');
+
+        // No check-in before the user opens Home today.
+        $this->assertDatabaseMissing('entries', ['bit_id' => $system->id, 'date' => $today]);
+
+        Livewire::actingAs($user)->test(Dashboard::class);
+
+        // Simply landing on Home counts today's Daily Check-In.
+        $this->assertDatabaseHas('entries', ['bit_id' => $system->id, 'date' => $today, 'status' => 'done']);
+
+        // Opening again does not duplicate it.
+        Livewire::actingAs($user)->test(Dashboard::class);
+        $this->assertSame(1, Entry::where('bit_id', $system->id)->whereDate('date', $today)->count());
+    }
+
     public function test_future_start_bit_excluded_until_it_begins(): void
     {
         $user = $this->freshUser();
