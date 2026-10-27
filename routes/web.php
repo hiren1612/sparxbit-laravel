@@ -39,6 +39,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('profile/notifications', App\Livewire\Settings\Notifications::class)->name('profile.notifications');
     Route::get('profile/language', App\Livewire\Settings\Language::class)->name('profile.language');
     Route::get('profile/sync', App\Livewire\Settings\Sync::class)->name('profile.sync');
+    Route::get('profile/monthly-report', App\Livewire\MonthlyReport::class)->name('profile.report');
     Route::get('profile/privacy', App\Livewire\Settings\Privacy::class)->name('profile.privacy');
     Route::get('help', App\Livewire\Settings\Help::class)->name('help');
     Route::get('profile/my-ad', App\Livewire\Settings\MyAd::class)->name('profile.myad');

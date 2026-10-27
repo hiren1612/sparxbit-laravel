@@ -1070,3 +1070,14 @@ textarea.field-input { height:auto; padding:10px 12px; line-height:1.5; }
     .celebrate-overlay, .celebrate-card, .celebrate-badge { animation:none; }
     .celebrate-confetti { display:none; }
 }
+
+/* Monthly report: print / save-as-PDF */
+.print-only { display:none; }
+@media print {
+    .no-print { display:none !important; }
+    .print-only { display:block !important; }
+    .sparx-nav, .nav-space, .nav-fab-link, .nav-fab { display:none !important; }
+    .phone-frame, body { background:#fff !important; box-shadow:none !important; }
+    @page { margin:14mm; }
+    #report { break-inside:avoid; }
+}

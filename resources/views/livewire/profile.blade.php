@@ -72,6 +72,7 @@
         <x-profile-row title="Edit profile" sub="Name, bio, avatar" :href="route('profile.edit')" iconBg="var(--primary-lt)" iconFg="var(--primary)"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></x-profile-row>
         <x-profile-row title="Email address" :sub="$email" :href="route('profile.email')"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 7l10 7 10-7"/></x-profile-row>
         <x-profile-row title="Sync & backup" sub="Data & export options" :href="route('profile.sync')" iconBg="var(--green-lt)" iconFg="#1A7A55"><polyline points="1 4 1 10 7 10"/><polyline points="23 20 23 14 17 14"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10M23 14l-4.64 4.36A9 9 0 0 1 3.51 15"/></x-profile-row>
+        <x-profile-row title="Monthly report" sub="Download a monthly summary (CSV or PDF)" :href="route('profile.report')" iconBg="var(--primary-lt)" iconFg="var(--primary)"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="13" y2="17"/></x-profile-row>
         <x-profile-row title="Privacy" sub="Data, visibility, permissions" :href="route('profile.privacy')"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></x-profile-row>
     </div>
 
