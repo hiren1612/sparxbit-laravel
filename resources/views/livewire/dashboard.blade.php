@@ -13,7 +13,7 @@
             @endif
         </a>
         <div style="flex:1; min-width:0;">
-            <div style="font-size:12px; color:var(--text-meta); line-height:1;">Good morning</div>
+            <div style="font-size:12px; color:var(--text-meta); line-height:1;">{{ $greeting }}</div>
             <div class="greeting-name" style="font-size:19px; line-height:1.2; margin-top:3px;">{{ $first }}</div>
         </div>
         <a href="{{ route('notifications.index') }}" wire:navigate class="bell-btn" aria-label="Notifications" style="position:relative;">

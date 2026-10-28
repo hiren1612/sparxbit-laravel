@@ -332,7 +332,17 @@ class Dashboard extends Component
         // Sponsored "AdBit" — one eligible advertiser, current week only.
         $ad = $isCurrentWeek ? \App\Services\AdFeed::pickOne($user) : null;
 
+        $hour = now()->setTimezone($user->timezone ?: config('app.timezone'))->hour;
+        $greeting = match (true) {
+            $hour < 5 => 'Good evening',
+            $hour < 12 => 'Good morning',
+            $hour < 17 => 'Good afternoon',
+            $hour < 22 => 'Good evening',
+            default => 'Good evening',
+        };
+
         return view('livewire.dashboard', [
+            'greeting' => $greeting,
             'first' => $user->name ? explode(' ', $user->name)[0] : explode('@', $user->email)[0],
             'avatarUrl' => $user->avatar_url,
             'bellUnread' => \App\Services\NotificationFeed::hasUnread($user),

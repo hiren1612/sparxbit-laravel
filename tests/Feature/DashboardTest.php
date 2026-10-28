@@ -32,7 +32,7 @@ class DashboardTest extends TestCase
         ]);
 
         Livewire::actingAs($user)->test(Dashboard::class)
-            ->assertSee('Good morning')
+            ->assertSee('Good ') // greeting (morning/afternoon/evening — time-dependent)
             ->assertSee('This week')
             ->assertSee('Run')
             ->assertSee('Daily Check-In');
@@ -99,6 +99,27 @@ class DashboardTest extends TestCase
         // Opening again does not duplicate it.
         Livewire::actingAs($user)->test(Dashboard::class);
         $this->assertSame(1, Entry::where('bit_id', $system->id)->whereDate('date', $today)->count());
+    }
+
+    public function test_greeting_reflects_the_users_local_time(): void
+    {
+        $user = $this->freshUser();
+        $user->update(['timezone' => 'Asia/Kolkata']); // UTC+5:30
+        $user = $user->fresh();
+
+        // 09:00 UTC = 14:30 in Kolkata → afternoon.
+        \Illuminate\Support\Carbon::setTestNow(\Illuminate\Support\Carbon::parse('2026-10-28 09:00:00', 'UTC'));
+        Livewire::actingAs($user)->test(Dashboard::class)->assertSee('Good afternoon');
+
+        // 02:00 UTC = 07:30 in Kolkata → morning.
+        \Illuminate\Support\Carbon::setTestNow(\Illuminate\Support\Carbon::parse('2026-10-28 02:00:00', 'UTC'));
+        Livewire::actingAs($user)->test(Dashboard::class)->assertSee('Good morning');
+
+        // 15:00 UTC = 20:30 in Kolkata → evening.
+        \Illuminate\Support\Carbon::setTestNow(\Illuminate\Support\Carbon::parse('2026-10-28 15:00:00', 'UTC'));
+        Livewire::actingAs($user)->test(Dashboard::class)->assertSee('Good evening');
+
+        \Illuminate\Support\Carbon::setTestNow();
     }
 
     public function test_future_start_bit_excluded_until_it_begins(): void
