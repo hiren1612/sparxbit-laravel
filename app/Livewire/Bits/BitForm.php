@@ -106,6 +106,38 @@ abstract class BitForm extends Component
         ];
     }
 
+    // When the start date changes, keep the end date valid: if the end is now
+    // missing or on/before the new start, snap it to the first Sunday after the
+    // start (a one-week span). Prevents the "end must be after start" dead-end.
+    public function updatedStartDate($value): void
+    {
+        $this->syncEndToStart($value);
+    }
+
+    // Turning the end date on (unlimited → off) with no date set defaults it to
+    // one week after the start, so the form is immediately valid.
+    public function updatedUnlimited($value): void
+    {
+        if (! $value) {
+            $this->syncEndToStart($this->startDate);
+        }
+    }
+
+    private function syncEndToStart(?string $start): void
+    {
+        if ($this->unlimited || ! $start) {
+            return;
+        }
+        try {
+            $s = Carbon::parse($start);
+        } catch (\Throwable $e) {
+            return;
+        }
+        if (! $this->endDate || Carbon::parse($this->endDate)->lte($s)) {
+            $this->endDate = $s->copy()->next(Carbon::SUNDAY)->format('Y-m-d');
+        }
+    }
+
     public function setGoal(int $n): void
     {
         $this->goalPerWeek = max(1, min(7, $n));

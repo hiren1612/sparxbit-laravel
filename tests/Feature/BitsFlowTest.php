@@ -112,6 +112,26 @@ class BitsFlowTest extends TestCase
         $this->assertDatabaseHas('bits', ['user_id' => $user->id, 'title' => 'Lift', 'start_date' => $mon]);
     }
 
+    public function test_moving_start_date_auto_adjusts_the_end_and_saves(): void
+    {
+        $user = $this->user(); // monday-start
+        $mon = now()->startOfWeek(\Carbon\Carbon::MONDAY)->toDateString();
+        $sun = now()->startOfWeek(\Carbon\Carbon::MONDAY)->addDays(6)->toDateString();
+        $bit = $this->bit($user, ['start_date' => $mon, 'end_date' => $sun]);
+
+        $nextMon = now()->startOfWeek(\Carbon\Carbon::MONDAY)->addWeek()->toDateString();
+        $nextSun = now()->startOfWeek(\Carbon\Carbon::MONDAY)->addWeek()->addDays(6)->toDateString();
+
+        Livewire::actingAs($user)->test(Edit::class, ['bit' => $bit])
+            ->assertSet('endDate', $sun)
+            ->set('startDate', $nextMon)      // would strand the old end (25th) before the new start
+            ->assertSet('endDate', $nextSun)  // end auto-moves to the new week's Sunday
+            ->call('save')
+            ->assertHasNoErrors();
+
+        $this->assertDatabaseHas('bits', ['id' => $bit->id, 'start_date' => $nextMon, 'end_date' => $nextSun]);
+    }
+
     public function test_edit_logs_goal_change(): void
     {
         $user = $this->user();
