@@ -77,6 +77,37 @@ class AchievementTest extends TestCase
         $this->assertDatabaseMissing('achievements', ['user_id' => $user->id, 'key' => 'streak-30']);
     }
 
+    public function test_hitting_one_bits_goal_awards_a_bit_trophy_when_others_remain(): void
+    {
+        $user = $this->freshUser();
+        $weekStart = now()->startOfWeek(Carbon::MONDAY);
+
+        // Two active Bits this week; only one will be completed.
+        $run = Bit::create([
+            'user_id' => $user->id, 'title' => 'Run', 'icon_key' => 'run',
+            'goal_per_week' => 1, 'status' => 'active', 'start_date' => $weekStart->toDateString(),
+        ]);
+        Bit::create([
+            'user_id' => $user->id, 'title' => 'Read', 'icon_key' => 'book',
+            'goal_per_week' => 4, 'status' => 'active', 'start_date' => $weekStart->toDateString(),
+        ]);
+
+        Entry::create([
+            'bit_id' => $run->id, 'user_id' => $user->id,
+            'date' => $weekStart->toDateString(), 'status' => 'done',
+        ]);
+
+        $trophy = AchievementService::sync($user);
+        $this->assertNotNull($trophy);
+        $this->assertSame('bit', $trophy->type);
+        $this->assertStringContainsString('Run', $trophy->title);
+        // The all-Bits weekly trophy must NOT fire — Read isn't done.
+        $this->assertDatabaseMissing('achievements', ['user_id' => $user->id, 'type' => 'weekly']);
+
+        // Idempotent for the same Bit + week.
+        $this->assertNull(AchievementService::sync($user));
+    }
+
     public function test_dashboard_shows_the_celebration_after_completing_the_weekly_goal(): void
     {
         $user = $this->freshUser();

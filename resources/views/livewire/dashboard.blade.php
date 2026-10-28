@@ -271,7 +271,7 @@
                 @endfor
             </div>
             <div class="celebrate-card" x-transition.scale.origin.center>
-                <div class="celebrate-badge">{{ $celebration['type'] === 'streak' ? '🔥' : '🏆' }}</div>
+                <div class="celebrate-badge">{{ ['streak' => '🔥', 'bit' => '🎯', 'weekly' => '🏆'][$celebration['type']] ?? '🏆' }}</div>
                 <h2 style="font-size:19px; font-weight:800; color:var(--text); margin:14px 0 6px; letter-spacing:-.3px;">{{ $celebration['title'] }}</h2>
                 <p style="font-size:12.5px; color:var(--text-mid); line-height:1.6; margin:0 0 20px;">{{ $celebration['body'] }}</p>
 
