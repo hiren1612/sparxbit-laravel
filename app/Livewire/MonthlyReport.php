@@ -31,9 +31,9 @@ class MonthlyReport extends Component
         $sundayFirst = $user->week_starts_on === 'sunday';
         $weekStartDow = $sundayFirst ? Carbon::SUNDAY : Carbon::MONDAY;
 
-        $monthStart = now()->startOfMonth()->addMonths($this->monthOffset)->startOfDay();
+        $monthStart = auth()->user()->localToday()->startOfMonth()->addMonths($this->monthOffset)->startOfDay();
         $monthEnd = $monthStart->copy()->endOfMonth()->startOfDay();
-        $todayISO = now()->format('Y-m-d');
+        $todayISO = auth()->user()->localToday()->format('Y-m-d');
 
         $monthDays = [];
         for ($d = $monthStart->copy(); $d <= $monthEnd; $d->addDay()) {

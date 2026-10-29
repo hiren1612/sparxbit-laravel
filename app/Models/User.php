@@ -77,6 +77,20 @@ class User extends Authenticatable implements FilamentUser
         return $this->hasMany(PushToken::class);
     }
 
+    // The current moment in the user's own timezone.
+    public function localNow(): \Illuminate\Support\Carbon
+    {
+        return now($this->timezone ?: config('app.timezone'));
+    }
+
+    // The user's local calendar date, as a plain date (midnight in the app
+    // timezone) so it compares cleanly with stored Y-m-d dates. Use this — not
+    // now() — for "today", week boundaries and streaks.
+    public function localToday(): \Illuminate\Support\Carbon
+    {
+        return \Illuminate\Support\Carbon::parse($this->localNow()->toDateString());
+    }
+
     public function webPushSubscriptions(): HasMany
     {
         return $this->hasMany(WebPushSubscription::class);

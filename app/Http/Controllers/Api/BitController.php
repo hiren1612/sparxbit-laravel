@@ -25,7 +25,7 @@ class BitController extends Controller
         $data = $this->mapInput($request->all());
         $data['user_id'] = $user->id;
         if (empty($data['start_date'])) {
-            $data['start_date'] = now()->format('Y-m-d');
+            $data['start_date'] = $user->localToday()->format('Y-m-d');
         }
         $data['category_id'] = $this->safeCategory($user->id, $data['category_id'] ?? null);
         $bit = Bit::create($data);
@@ -88,7 +88,7 @@ class BitController extends Controller
         $data = $this->mapInput($request->all());
         $data['user_id'] = $user->id;
         if (empty($data['start_date'])) {
-            $data['start_date'] = $existing?->start_date?->format('Y-m-d') ?? now()->format('Y-m-d');
+            $data['start_date'] = $existing?->start_date?->format('Y-m-d') ?? $user->localToday()->format('Y-m-d');
         }
         if (empty($data['title'])) {
             $data['title'] = $existing?->title ?? 'Bit';

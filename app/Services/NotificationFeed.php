@@ -39,10 +39,10 @@ class NotificationFeed
     // newest first. Shared by the Notifications page and the Home bell dot.
     public static function items(User $user): Collection
     {
-        $today = now()->startOfDay();
+        $today = $user->localToday()->startOfDay();
         $todayISO = $today->format('Y-m-d');
         $sundayFirst = $user->week_starts_on === 'sunday';
-        $weekStart = now()->startOfWeek($sundayFirst ? Carbon::SUNDAY : Carbon::MONDAY)->startOfDay();
+        $weekStart = $user->localToday()->startOfWeek($sundayFirst ? Carbon::SUNDAY : Carbon::MONDAY)->startOfDay();
         $weekISOs = collect(range(0, 6))->map(fn ($i) => $weekStart->copy()->addDays($i)->format('Y-m-d'))->all();
 
         $bits = $user->bits()->where('is_system', false)->where('status', 'active')->get();
@@ -135,7 +135,7 @@ class NotificationFeed
         }
         $seen = $user->notifications_seen_at;
 
-        return ! $seen || $seen->lt(now()->startOfDay());
+        return ! $seen || $seen->lt($user->localNow()->startOfDay());
     }
 
     // Mark the feed as seen (clears the bell dot).

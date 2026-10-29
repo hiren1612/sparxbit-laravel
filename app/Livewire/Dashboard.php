@@ -28,7 +28,7 @@ class Dashboard extends Component
 
     public function mount(): void
     {
-        $this->selectedDateISO = now()->format('Y-m-d');
+        $this->selectedDateISO = auth()->user()->localToday()->format('Y-m-d');
         $this->autoCheckInToday();
         $this->celebrate();
     }
@@ -44,7 +44,7 @@ class Dashboard extends Component
             return;
         }
         Entry::firstOrCreate(
-            ['bit_id' => $sys->id, 'date' => now()->format('Y-m-d')],
+            ['bit_id' => $sys->id, 'date' => auth()->user()->localToday()->format('Y-m-d')],
             ['user_id' => $user->id, 'status' => 'done', 'source' => 'manual', 'completed_at' => now()],
         );
     }
@@ -118,7 +118,7 @@ class Dashboard extends Component
             // Auto-mark the Daily Check-In only when checking a bit for TODAY —
             // the check-in means "opened the app that day", which a retroactive
             // past-day tap doesn't imply. Never auto-unsets it.
-            if ($date === now()->format('Y-m-d')) {
+            if ($date === auth()->user()->localToday()->format('Y-m-d')) {
                 $sys = $user->bits()->where('is_system', true)->first();
                 if ($sys) {
                     Entry::updateOrCreate(
@@ -134,7 +134,7 @@ class Dashboard extends Component
     // Mark every still-undone bit for TODAY as done in one tap (today only).
     public function markAll(): void
     {
-        if ($this->selectedDateISO !== now()->format('Y-m-d')) {
+        if ($this->selectedDateISO !== auth()->user()->localToday()->format('Y-m-d')) {
             return;
         }
         $user = auth()->user();
@@ -173,10 +173,10 @@ class Dashboard extends Component
     {
         $user = auth()->user();
         $sundayFirst = $user->week_starts_on === 'sunday';
-        $today = now()->startOfDay();
+        $today = auth()->user()->localToday()->startOfDay();
         $todayISO = $today->format('Y-m-d');
 
-        $currentWeekStart = now()->startOfWeek($sundayFirst ? Carbon::SUNDAY : Carbon::MONDAY)->startOfDay();
+        $currentWeekStart = auth()->user()->localToday()->startOfWeek($sundayFirst ? Carbon::SUNDAY : Carbon::MONDAY)->startOfDay();
         $weekStart = $currentWeekStart->copy()->addWeeks($this->weekOffset);
         $weekDates = collect(range(0, 6))->map(fn ($i) => $weekStart->copy()->addDays($i));
         $weekISOs = $weekDates->map(fn ($d) => $d->format('Y-m-d'))->all();

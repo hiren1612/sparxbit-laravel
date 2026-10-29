@@ -42,7 +42,8 @@ class AdFeed
         })->map(fn ($c) => [
             'businessName' => $c->business_name,
             'tagline' => $c->ad_tagline,
-            'link' => $c->ad_link,
+            // Only ever render http(s) links (blocks javascript:/data: payloads).
+            'link' => preg_match('#^https?://#i', (string) $c->ad_link) ? $c->ad_link : null,
         ])->values();
     }
 

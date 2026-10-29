@@ -5,12 +5,12 @@
 ])
 @php
     $tone = $badgeTone === 'green'
-        ? ['bg' => 'var(--green-lt)', 'c' => '#1A7A55']
+        ? ['bg' => 'var(--green-lt)', 'c' => 'var(--green-ink)']
         : ['bg' => 'var(--primary-lt)', 'c' => 'var(--primary)'];
 @endphp
 <a href="{{ $href }}" wire:navigate style="display:flex; align-items:center; gap:13px; padding:14px 16px; text-decoration:none; border-bottom:1px solid var(--border-i);">
     <div style="width:36px; height:36px; border-radius:11px; background:{{ $iconBg }}; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="{{ $iconFg }}" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">{!! $slot !!}</svg>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="{{ $iconFg }}" style="stroke:{{ $iconFg }}" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">{!! $slot !!}</svg>
     </div>
     <div style="flex:1; min-width:0;">
         <div style="font-size:13.5px; font-weight:600; color:var(--text);">{{ $title }}</div>

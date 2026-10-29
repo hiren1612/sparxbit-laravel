@@ -30,7 +30,7 @@ class Calendar extends Component
 
     public function mount(): void
     {
-        $this->anchor = now()->format('Y-m-d');
+        $this->anchor = auth()->user()->localToday()->format('Y-m-d');
     }
 
     public function setView(string $v): void
@@ -40,7 +40,7 @@ class Calendar extends Component
 
     public function goToday(): void
     {
-        $this->anchor = now()->format('Y-m-d');
+        $this->anchor = auth()->user()->localToday()->format('Y-m-d');
     }
 
     public function shiftPeriod(int $dir): void
@@ -61,7 +61,7 @@ class Calendar extends Component
         if (! $bit || $bit->is_system) {
             return;
         }
-        if ($iso > now()->format('Y-m-d')) {
+        if ($iso > auth()->user()->localToday()->format('Y-m-d')) {
             return;
         }
         $entry = Entry::where('bit_id', $bitId)->whereDate('date', $iso)->first();
@@ -106,7 +106,7 @@ class Calendar extends Component
     {
         $user = auth()->user();
         $sundayFirst = $user->week_starts_on === 'sunday';
-        $todayISO = now()->format('Y-m-d');
+        $todayISO = auth()->user()->localToday()->format('Y-m-d');
         $anchor = Carbon::parse($this->anchor)->startOfDay();
 
         $dayLabels = $sundayFirst ? ['S', 'M', 'T', 'W', 'T', 'F', 'S'] : ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
@@ -214,7 +214,7 @@ class Calendar extends Component
             $month = $anchor->month;
             $daysInMonth = $anchor->copy()->daysInMonth;
             $data['rangeLabel'] = self::MONTHS[$month - 1].' '.$year;
-            $isCurrentMonth = $year === now()->year && $month === now()->month;
+            $isCurrentMonth = $year === auth()->user()->localToday()->year && $month === auth()->user()->localToday()->month;
             $monthEnd = $isCurrentMonth ? $todayISO : $anchor->copy()->endOfMonth()->format('Y-m-d');
 
             $data['cards'] = $bits->map(function ($row) use ($year, $month, $daysInMonth, $doneOn, $todayISO, $periodStart, $monthEnd) {
@@ -244,7 +244,7 @@ class Calendar extends Component
             for ($d = $jan1->copy(); $d->year === $year; $d->addDay()) {
                 $yearDays[] = $d->format('Y-m-d');
             }
-            $yearEnd = $year === now()->year ? $todayISO : "$year-12-31";
+            $yearEnd = $year === auth()->user()->localToday()->year ? $todayISO : "$year-12-31";
 
             $data['leadBlanks'] = $leadBlanks;
             $data['grids'] = $bits->map(function ($row) use ($yearDays, $doneOn, $todayISO, $periodStart, $yearEnd) {

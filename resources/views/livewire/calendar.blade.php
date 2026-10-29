@@ -53,16 +53,16 @@
                                 cursor:{{ $d['isFuture'] || $d['outOfRange'] ? 'not-allowed' : 'pointer' }};"></button>
                         @endforeach
                         <div style="display:flex; align-items:center; justify-content:center;">
-                            @if ($r['isPerfect'])<span style="font-size:9px; font-weight:700; color:#1E5AA8; background:rgba(91,141,239,.16); border-radius:999px; padding:2px 5px;">✓</span>@endif
+                            @if ($r['isPerfect'])<span style="font-size:9px; font-weight:700; color:var(--blue-ink); background:rgba(91,141,239,.16); border-radius:999px; padding:2px 5px;">✓</span>@endif
                         </div>
                     </div>
                 @endforeach
             </div>
             <div style="display:flex; justify-content:space-between; gap:8px; margin-top:18px;">
-                @include('livewire.partials.cal-stat', ['value' => $stats['goalsMet'].' of '.$stats['goalsTotal'], 'label' => 'goals met', 'color' => '#E55353'])
-                @include('livewire.partials.cal-stat', ['value' => $stats['bestDayName'] ?: '—', 'label' => $stats['bestDayCount'] > 0 ? 'best day · '.$stats['bestDayCount'].' done' : 'best day', 'color' => '#2A5FCC'])
-                @include('livewire.partials.cal-stat', ['value' => (string) $stats['totalDone'], 'label' => 'check-ins done', 'color' => '#1A7575'])
-                @include('livewire.partials.cal-stat', ['value' => (string) $stats['daysActive'], 'label' => 'active days', 'color' => '#B85A10'])
+                @include('livewire.partials.cal-stat', ['value' => $stats['goalsMet'].' of '.$stats['goalsTotal'], 'label' => 'goals met', 'color' => 'var(--danger)'])
+                @include('livewire.partials.cal-stat', ['value' => $stats['bestDayName'] ?: '—', 'label' => $stats['bestDayCount'] > 0 ? 'best day · '.$stats['bestDayCount'].' done' : 'best day', 'color' => 'var(--blue-ink)'])
+                @include('livewire.partials.cal-stat', ['value' => (string) $stats['totalDone'], 'label' => 'check-ins done', 'color' => 'var(--teal-ink)'])
+                @include('livewire.partials.cal-stat', ['value' => (string) $stats['daysActive'], 'label' => 'active days', 'color' => 'var(--orange-ink)'])
             </div>
         </div>
 
@@ -112,7 +112,7 @@
                     <div style="display:grid; grid-auto-flow:column; grid-template-rows:repeat(7,1fr); grid-auto-columns:1fr; gap:2px; height:64px; background:var(--surface); padding:10px; border-radius:12px; border:1px solid var(--border-i);">
                         @for ($k = 0; $k < $leadBlanks; $k++)<div></div>@endfor
                         @foreach ($g['cells'] as $cell)
-                            <div title="{{ $cell['iso'] }}" style="border-radius:2px; background:{{ $cell['done'] ? $g['pal']['filled'] : ($cell['outOfRange'] || $cell['isFuture'] ? '#F1F3F8' : '#DCE0EA') }};"></div>
+                            <div title="{{ $cell['iso'] }}" style="border-radius:2px; background:{{ $cell['done'] ? $g['pal']['filled'] : ($cell['outOfRange'] || $cell['isFuture'] ? 'var(--track)' : 'var(--track-strong)') }};"></div>
                         @endforeach
                     </div>
                 </div>

@@ -78,7 +78,7 @@ abstract class BitForm extends Component
         $future = $this->startMustBeFuture();
         // Earliest allowed start = the beginning of the CURRENT week, so a bit
         // created mid-week starts this week (and shows today), not next week.
-        $minStart = \Illuminate\Support\Carbon::today()->startOfWeek($sundayFirst ? Carbon::SUNDAY : Carbon::MONDAY);
+        $minStart = auth()->user()->localToday()->startOfWeek($sundayFirst ? Carbon::SUNDAY : Carbon::MONDAY);
 
         return [
             'title' => 'required|string|max:50',
@@ -224,7 +224,7 @@ abstract class BitForm extends Component
             'sundayFirst' => $sundayFirst,
             'startDow' => $sundayFirst ? 0 : 1,
             'startMin' => $this->startMustBeFuture()
-                ? Carbon::today()->startOfWeek($sundayFirst ? Carbon::SUNDAY : Carbon::MONDAY)->format('Y-m-d')
+                ? auth()->user()->localToday()->startOfWeek($sundayFirst ? Carbon::SUNDAY : Carbon::MONDAY)->format('Y-m-d')
                 : null,
             'endMin' => $this->startDate ? Carbon::parse($this->startDate)->addDay()->format('Y-m-d') : null,
         ]);

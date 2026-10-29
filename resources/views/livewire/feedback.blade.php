@@ -2,7 +2,7 @@
     <x-page-header title="Send feedback" :back="route('profile')" />
 
     @if ($sent)
-        <div style="background:var(--green-lt); border:1px solid rgba(90,214,160,.28); border-radius:14px; padding:14px 16px; margin-bottom:16px; font-size:13px; color:#1A7A55; font-weight:600;">
+        <div style="background:var(--green-lt); border:1px solid rgba(90,214,160,.28); border-radius:14px; padding:14px 16px; margin-bottom:16px; font-size:13px; color:var(--green-ink); font-weight:600;">
             🎉 Thanks! Your feedback has been sent.
         </div>
     @endif

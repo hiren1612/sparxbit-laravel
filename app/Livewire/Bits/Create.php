@@ -12,7 +12,7 @@ class Create extends BitForm
         // Default to the start of the CURRENT week, so a new bit is active this
         // week and shows up today (not "upcoming" until next Monday).
         $sundayFirst = auth()->user()->week_starts_on === 'sunday';
-        $this->startDate = Carbon::today()
+        $this->startDate = auth()->user()->localToday()
             ->startOfWeek($sundayFirst ? Carbon::SUNDAY : Carbon::MONDAY)
             ->format('Y-m-d');
     }

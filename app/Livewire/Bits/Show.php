@@ -32,7 +32,7 @@ class Show extends Component
 
     public function toggleToday(): void
     {
-        $iso = now()->format('Y-m-d');
+        $iso = auth()->user()->localToday()->format('Y-m-d');
         $entry = Entry::where('bit_id', $this->bit->id)->whereDate('date', $iso)->first();
         if ($entry && $entry->status === 'done') {
             $entry->delete();
@@ -95,7 +95,7 @@ class Show extends Component
     // Backfill: toggle a past day done <-> cleared from the "Log past days" sheet.
     public function backfillToggle(string $iso): void
     {
-        if ($iso > now()->format('Y-m-d')) {
+        if ($iso > auth()->user()->localToday()->format('Y-m-d')) {
             return;
         }
         $entry = Entry::where('bit_id', $this->bit->id)->whereDate('date', $iso)->first();
@@ -128,12 +128,12 @@ class Show extends Component
     public function render()
     {
         $bit = $this->bit;
-        $today = now()->startOfDay();
+        $today = auth()->user()->localToday()->startOfDay();
         $todayISO = $today->format('Y-m-d');
         $goal = max(1, $bit->goal_per_week);
 
         $sundayFirst = auth()->user()->week_starts_on === 'sunday';
-        $weekStart = now()->startOfWeek($sundayFirst ? Carbon::SUNDAY : Carbon::MONDAY)->startOfDay();
+        $weekStart = auth()->user()->localToday()->startOfWeek($sundayFirst ? Carbon::SUNDAY : Carbon::MONDAY)->startOfDay();
         $weekDays = collect(range(0, 6))->map(fn ($i) => $weekStart->copy()->addDays($i));
         $weekISOs = $weekDays->map(fn ($d) => $d->format('Y-m-d'))->all();
         $dayLabels = $sundayFirst ? ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'] : ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];

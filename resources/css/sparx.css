@@ -40,6 +40,12 @@
   --coral: #ff7a50;
   --coral-lt: #ffe9e0;
   --coral-ink: #d8552a;
+  --track: #f2f3fa;          /* progress tracks, empty cells */
+  --track-strong: #dce0ea;   /* past/inactive heatmap cells */
+  --green-ink: #1a7a55;      /* dark green text on --green-lt */
+  --orange-ink: #b85a10;
+  --blue-ink: #2a5fcc;
+  --teal-ink: #1a7575;
 
   /* Extra accent */
   --violet: #7c6ff2;
@@ -115,6 +121,12 @@
   --coral: #ff9a6e;
   --coral-lt: #2a1a12;
   --coral-ink: #ffb492;
+  --track: rgba(255, 255, 255, 0.07);
+  --track-strong: rgba(255, 255, 255, 0.14);
+  --green-ink: #5fe0bd;
+  --orange-ink: #ffb07a;
+  --blue-ink: #9cc0ff;
+  --teal-ink: #6fd6d0;
 
   --border: rgba(255, 255, 255, 0.08);
   --border-i: rgba(255, 255, 255, 0.06);
@@ -158,6 +170,12 @@
     --coral: #ff9a6e;
     --coral-lt: #2a1a12;
     --coral-ink: #ffb492;
+    --track: rgba(255, 255, 255, 0.07);
+    --track-strong: rgba(255, 255, 255, 0.14);
+    --green-ink: #5fe0bd;
+    --orange-ink: #ffb07a;
+    --blue-ink: #9cc0ff;
+    --teal-ink: #6fd6d0;
     --border: rgba(255, 255, 255, 0.08);
     --border-i: rgba(255, 255, 255, 0.06);
     --divider: rgba(255, 255, 255, 0.06);
@@ -945,10 +963,10 @@ textarea.field-input { height:auto; padding:10px 12px; line-height:1.5; }
 /* Bits list rows */
 .bitrow { display:flex; align-items:center; gap:12px; padding:13px 14px; background:var(--surface); border:1px solid var(--border); border-radius:16px; cursor:pointer; text-align:left; box-shadow:var(--sh-sm); width:100%; font-family:inherit; }
 .bitrow__icon { width:40px; height:40px; border-radius:11px; background:var(--surface-tint); display:flex; align-items:center; justify-content:center; font-size:19px; flex-shrink:0; }
-.bitrow__bar { height:5px; background:#F2F3FA; border-radius:999px; overflow:hidden; }
+.bitrow__bar { height:5px; background:var(--track); border-radius:999px; overflow:hidden; }
 .bitrow__bar > span { display:block; height:100%; border-radius:999px; transition:width .8s cubic-bezier(.4,0,.2,1); }
 .badge-soft { font-size:9.5px; font-weight:700; color:var(--text-mid); background:var(--surface-tint); padding:2px 6px; border-radius:999px; letter-spacing:.4px; flex-shrink:0; text-transform:uppercase; }
-.badge-goal { font-size:9.5px; font-weight:700; color:#1A7A55; background:var(--green-lt); padding:2px 6px; border-radius:999px; letter-spacing:.3px; flex-shrink:0; }
+.badge-goal { font-size:9.5px; font-weight:700; color:var(--green-ink); background:var(--green-lt); padding:2px 6px; border-radius:999px; letter-spacing:.3px; flex-shrink:0; }
 .kebab { width:28px; height:28px; border-radius:8px; background:var(--surface-tint); display:inline-flex; align-items:center; justify-content:center; cursor:pointer; color:var(--text-muted); font-size:16px; line-height:1; margin-left:4px; border:none; }
 
 /* Search input */
@@ -1080,4 +1098,10 @@ textarea.field-input { height:auto; padding:10px 12px; line-height:1.5; }
     .phone-frame, body { background:#fff !important; box-shadow:none !important; }
     @page { margin:14mm; }
     #report { break-inside:avoid; }
+}
+
+/* iOS Safari zooms the page when focusing any field under 16px. Give fields
+   16px on iOS only, so desktop/Android keep the compact design. */
+@supports (-webkit-touch-callout: none) {
+    input, textarea, select { font-size: 16px !important; }
 }

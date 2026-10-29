@@ -1,5 +1,5 @@
 <div>
-    @php $SHADE = [0 => '#EDF0F8', 1 => '#C5DBFB', 2 => '#93D8D3', 3 => '#63CBC4', 4 => '#3DC5BC']; @endphp
+    @php $SHADE = [0 => 'var(--track)', 1 => '#C5DBFB', 2 => '#93D8D3', 3 => '#63CBC4', 4 => '#3DC5BC']; @endphp
 
     {{-- Header + range toggle --}}
     <div style="display:flex; justify-content:space-between; align-items:center; padding:28px 0 20px;">
@@ -48,7 +48,7 @@
                     @foreach ($barRows as $r)
                         <div style="display:flex; align-items:center; gap:8px;">
                             <div style="width:48px; font-size:10px; color:var(--text-meta); flex-shrink:0;">{{ $r['label'] }}</div>
-                            <div style="flex:1; height:14px; background:#F2F3FA; border-radius:999px; overflow:hidden;">
+                            <div style="flex:1; height:14px; background:var(--track); border-radius:999px; overflow:hidden;">
                                 <div style="height:100%; width:{{ min(100, $r['pct']) }}%; background:{{ $r['met'] ? 'var(--green)' : 'var(--primary)' }}; border-radius:999px; transition:width 1s cubic-bezier(.4,0,.2,1);"></div>
                             </div>
                             <div style="width:44px; text-align:right; font-size:10.5px; font-weight:600; color:var(--text-mid); flex-shrink:0;">{{ $r['done'] }}/{{ $r['goal'] }}</div>
@@ -121,7 +121,7 @@
                     @foreach ($checkinCells as $c)
                         <div style="display:flex; flex-direction:column; align-items:center; gap:5px;">
                             <span style="font-size:9px; font-weight:600; color:var(--text-meta);">{{ $c['dow'] }}</span>
-                            <div style="width:100%; max-width:30px; aspect-ratio:1; border-radius:50%; background:{{ $c['level'] ? 'var(--green)' : '#EDF0F8' }}; {{ $c['isToday'] ? 'border:2px solid var(--primary);' : '' }} display:flex; align-items:center; justify-content:center;">
+                            <div style="width:100%; max-width:30px; aspect-ratio:1; border-radius:50%; background:{{ $c['level'] ? 'var(--green)' : 'var(--track)' }}; {{ $c['isToday'] ? 'border:2px solid var(--primary);' : '' }} display:flex; align-items:center; justify-content:center;">
                                 @if ($c['level'])<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>@endif
                             </div>
                         </div>
@@ -130,7 +130,7 @@
             @else
                 <div style="display:grid; grid-template-rows:repeat(7,9px); grid-auto-flow:column; grid-auto-columns:{{ $weeks > 10 ? 'minmax(0,1fr)' : '9px' }}; gap:3px; justify-content:start;">
                     @foreach ($checkinCells as $c)
-                        <div style="border-radius:2px; background:{{ $c['future'] ? 'transparent' : ($c['level'] ? 'var(--green)' : '#EDF0F8') }}; {{ $c['future'] ? 'outline:1px dashed var(--border-i); outline-offset:-1px;' : '' }}"></div>
+                        <div style="border-radius:2px; background:{{ $c['future'] ? 'transparent' : ($c['level'] ? 'var(--green)' : 'var(--track)') }}; {{ $c['future'] ? 'outline:1px dashed var(--border-i); outline-offset:-1px;' : '' }}"></div>
                     @endforeach
                 </div>
             @endif
@@ -160,7 +160,7 @@
                         <button type="button" wire:click="toggleExpand('{{ $b['id'] }}')" style="display:flex; flex-direction:column; align-items:center; gap:6px; background:none; border:none; cursor:pointer; padding:0; font-family:inherit; width:100%; min-width:0;">
                             <div style="position:relative; width:64px; height:64px;">
                                 <svg width="64" height="64" viewBox="0 0 64 64" style="transform:rotate(-90deg);">
-                                    <circle cx="32" cy="32" r="{{ $R }}" fill="none" stroke="#F2F3FA" stroke-width="6"/>
+                                    <circle cx="32" cy="32" r="{{ $R }}" fill="none" stroke="#F2F3FA" style="stroke:var(--track)" stroke-width="6"/>
                                     <circle cx="32" cy="32" r="{{ $R }}" fill="none" stroke="{{ $color }}" stroke-width="6" stroke-linecap="{{ $met ? 'butt' : 'round' }}" stroke-dasharray="{{ $C }}" stroke-dashoffset="{{ $off }}" style="transition:stroke-dashoffset 1s cubic-bezier(.4,0,.2,1);"/>
                                 </svg>
                                 <div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center;">

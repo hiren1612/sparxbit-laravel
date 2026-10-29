@@ -27,6 +27,19 @@ class Bit extends Model
         'goal_per_week' => 'integer',
     ];
 
+    // Turning on a reminder for a Bit (web or API) also switches on the user's
+    // reminder delivery, so the reminder they just set actually arrives.
+    protected static function booted(): void
+    {
+        static::saved(function (Bit $bit) {
+            if ($bit->reminder_enabled && ! $bit->is_system) {
+                User::whereKey($bit->user_id)
+                    ->where('notifications_push_enabled', false)
+                    ->update(['notifications_push_enabled' => true]);
+            }
+        });
+    }
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);

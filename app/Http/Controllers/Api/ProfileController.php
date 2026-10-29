@@ -37,7 +37,7 @@ class ProfileController extends Controller
             'autoSync' => 'sometimes|boolean',
             'businessName' => 'sometimes|nullable|string|max:60',
             'adTagline' => 'sometimes|nullable|string|max:80',
-            'adLink' => 'sometimes|nullable|string|max:200',
+            'adLink' => 'sometimes|nullable|url:http,https|max:200',
         ]);
 
         $map = [
@@ -105,7 +105,7 @@ class ProfileController extends Controller
         $user = $request->user();
 
         if ($data['kind'] === 'last7') {
-            $cutoff = now()->subDays(7)->format('Y-m-d');
+            $cutoff = $user->localToday()->subDays(7)->format('Y-m-d');
             Entry::where('user_id', $user->id)->whereDate('date', '>=', $cutoff)->delete();
         } elseif ($data['kind'] === 'allHistory') {
             Entry::where('user_id', $user->id)->delete();

@@ -26,7 +26,7 @@ class Profile extends Component
     {
         $user = auth()->user();
         $sundayFirst = $user->week_starts_on === 'sunday';
-        $weekStart = now()->startOfWeek($sundayFirst ? Carbon::SUNDAY : Carbon::MONDAY)->startOfDay();
+        $weekStart = auth()->user()->localToday()->startOfWeek($sundayFirst ? Carbon::SUNDAY : Carbon::MONDAY)->startOfDay();
         $weekISOs = collect(range(0, 6))->map(fn ($i) => $weekStart->copy()->addDays($i)->format('Y-m-d'))->all();
         $firstDay = $weekISOs[0];
         $lastDay = $weekISOs[6];

@@ -15,7 +15,7 @@ class AchievementService
     // new one to celebrate (or null if nothing new).
     public static function sync(User $user): ?Achievement
     {
-        $week = now()->isoFormat('GGGG-[W]WW');
+        $week = $user->localToday()->isoFormat('GGGG-[W]WW');
         $candidates = []; // priority => Achievement (higher priority wins the popup)
 
         // 1) Per-Bit weekly goal — one per Bit per ISO week (lowest priority).
@@ -63,7 +63,7 @@ class AchievementService
     public static function bitsHittingGoal(User $user): \Illuminate\Support\Collection
     {
         $sundayFirst = $user->week_starts_on === 'sunday';
-        $weekStart = now()->startOfWeek($sundayFirst ? Carbon::SUNDAY : Carbon::MONDAY)->startOfDay();
+        $weekStart = $user->localToday()->startOfWeek($sundayFirst ? Carbon::SUNDAY : Carbon::MONDAY)->startOfDay();
         $weekISOs = collect(range(0, 6))->map(fn ($i) => $weekStart->copy()->addDays($i)->format('Y-m-d'))->all();
         $firstDay = $weekISOs[0];
         $lastDay = $weekISOs[6];
@@ -96,7 +96,7 @@ class AchievementService
     public static function weeklyGoalMet(User $user): bool
     {
         $sundayFirst = $user->week_starts_on === 'sunday';
-        $weekStart = now()->startOfWeek($sundayFirst ? Carbon::SUNDAY : Carbon::MONDAY)->startOfDay();
+        $weekStart = $user->localToday()->startOfWeek($sundayFirst ? Carbon::SUNDAY : Carbon::MONDAY)->startOfDay();
         $weekISOs = collect(range(0, 6))->map(fn ($i) => $weekStart->copy()->addDays($i)->format('Y-m-d'))->all();
         $firstDay = $weekISOs[0];
         $lastDay = $weekISOs[6];
@@ -130,7 +130,7 @@ class AchievementService
         $checked = Entry::where('bit_id', $system->id)->where('status', 'done')->pluck('date')
             ->map(fn ($d) => $d->format('Y-m-d'))->all();
 
-        $today = now()->startOfDay();
+        $today = $user->localToday()->startOfDay();
         $todayISO = $today->format('Y-m-d');
         $streak = 0;
         $offset = in_array($todayISO, $checked, true) ? 0 : 1;

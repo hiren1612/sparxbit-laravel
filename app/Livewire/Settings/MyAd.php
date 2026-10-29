@@ -25,7 +25,7 @@ class MyAd extends Component
         $data = $this->validate([
             'businessName' => 'nullable|string|max:60',
             'tagline' => 'nullable|string|max:120',
-            'link' => 'nullable|url|max:200',
+            'link' => 'nullable|url:http,https|max:200',
         ]);
 
         auth()->user()->update([

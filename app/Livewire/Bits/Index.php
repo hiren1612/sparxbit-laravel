@@ -68,9 +68,9 @@ class Index extends Component
     public function render()
     {
         $user = auth()->user();
-        $today = now()->startOfDay();
+        $today = auth()->user()->localToday()->startOfDay();
         $todayISO = $today->format('Y-m-d');
-        $weekStart = now()->startOfWeek(Carbon::MONDAY)->startOfDay();
+        $weekStart = auth()->user()->localToday()->startOfWeek(Carbon::MONDAY)->startOfDay();
         $weekDays = collect(range(0, 6))->map(fn ($i) => $weekStart->copy()->addDays($i)->format('Y-m-d'))->all();
 
         $bits = $user->bits()->where('is_system', false)

@@ -62,7 +62,7 @@ class Stats extends Component
         $sundayFirst = $user->week_starts_on === 'sunday';
         $weeks = $this->range === 'week' ? 1 : ($this->range === 'month' ? 5 : 52);
         $windowDays = $this->range === 'week' ? 7 : ($this->range === 'month' ? 35 : 364);
-        $today = now()->startOfDay();
+        $today = auth()->user()->localToday()->startOfDay();
         $todayISO = $today->format('Y-m-d');
         $curWeekStart = $today->copy()->startOfWeek($sundayFirst ? Carbon::SUNDAY : Carbon::MONDAY);
 

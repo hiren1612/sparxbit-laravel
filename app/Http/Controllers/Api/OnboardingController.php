@@ -43,7 +43,7 @@ class OnboardingController extends Controller
                 'why' => $s->default_why,
                 'goal_per_week' => $s->default_goal_per_week,
                 'icon_key' => $s->icon_key,
-                'start_date' => now()->format('Y-m-d'),
+                'start_date' => $user->localToday()->format('Y-m-d'),
                 'goal_id' => $goal?->id,
                 'category_id' => $categoryId,
                 'reminder_days' => [],

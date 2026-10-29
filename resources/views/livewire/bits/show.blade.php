@@ -1,7 +1,7 @@
 <div>
     @php
         $histStyles = [
-            'done' => ['bg' => 'var(--green-lt)', 'color' => '#1A7A55', 'label' => 'Done', 'icon' => true],
+            'done' => ['bg' => 'var(--green-lt)', 'color' => 'var(--green-ink)', 'label' => 'Done', 'icon' => true],
             'missed' => ['bg' => 'var(--danger-lt)', 'color' => '#C53030', 'label' => 'Missed', 'icon' => false],
             'skipped' => ['bg' => 'var(--surface-tint)', 'color' => 'var(--text-meta)', 'label' => 'Skipped', 'icon' => false],
             'pending' => ['bg' => 'var(--surface-tint)', 'color' => 'var(--text-mid)', 'label' => 'Pending', 'icon' => false],
@@ -76,7 +76,7 @@
     {{-- Goal upgrade prompt --}}
     @if ($showUpgrade)
         <div style="margin-top:16px; padding:16px; border-radius:16px; background:var(--green-lt); border:1px solid rgba(90,214,160,.28);">
-            <div style="font-size:10.5px; font-weight:700; color:#1A7A55; letter-spacing:.6px; text-transform:uppercase; margin-bottom:6px;">🔥 4 perfect weeks in a row</div>
+            <div style="font-size:10.5px; font-weight:700; color:var(--green-ink); letter-spacing:.6px; text-transform:uppercase; margin-bottom:6px;">🔥 4 perfect weeks in a row</div>
             <div style="font-size:13px; color:var(--text); font-weight:600; margin-bottom:4px; line-height:1.5;">You've nailed <strong>{{ $bit->title }}</strong> at {{ $goal }}× / week for a month straight.</div>
             <div style="font-size:12px; color:var(--text-mid); margin-bottom:12px; line-height:1.5;">Ready to push it up to <strong>{{ $nextGoal }}× / week</strong>?</div>
             <div style="display:flex; gap:8px;">
@@ -105,7 +105,7 @@
                         <div style="font-size:9px; font-weight:600; color:var(--text-meta); text-transform:uppercase; letter-spacing:.4px;">{{ $dayLabels[$i] }}</div>
                         <div style="width:32px; height:32px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:600;
                             color:{{ $filled ? '#fff' : ($d['status'] === 'missed' ? 'var(--orange)' : 'var(--text-meta)') }};
-                            background:{{ $filled ? 'var(--primary)' : '#F4F5FC' }}; box-shadow:{{ $filled ? '0 1px 4px rgba(91,141,239,.18)' : 'none' }};">
+                            background:{{ $filled ? 'var(--primary)' : 'var(--track)' }}; box-shadow:{{ $filled ? '0 1px 4px rgba(91,141,239,.18)' : 'none' }};">
                             {{ $d['dayOfMonth'] }}
                         </div>
                     </div>
