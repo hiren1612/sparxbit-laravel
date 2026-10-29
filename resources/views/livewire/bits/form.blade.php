@@ -77,7 +77,7 @@
     <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:18px;">
         <div>
             <div style="font-size:10px; font-weight:600; color:var(--text-meta); text-transform:uppercase; letter-spacing:.6px; margin-bottom:5px;">Start Date</div>
-            <x-date-picker field="startDate" :value="$startDate" :allowed-dow="$startDow" :min="$startMin" :sunday-first="$sundayFirst" placeholder="Pick a date" wire:key="startpicker" />
+            <x-date-picker field="startDate" :value="$startDate" :allowed-dow="$startDow" :min="$startMin" :allow="$startAllow" :sunday-first="$sundayFirst" placeholder="Pick a date" wire:key="startpicker" />
             <div style="font-size:10px; color:var(--text-meta); margin-top:4px;">Starts on a {{ $sundayFirst ? 'Sunday' : 'Monday' }}.</div>
             @error('startDate') <div style="font-size:10.5px; color:var(--danger); margin-top:4px; line-height:1.4;">{{ $message }}</div> @enderror
         </div>

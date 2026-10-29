@@ -29,6 +29,7 @@ document.addEventListener('alpine:init', () => {
         field: opts.field,
         allowedDow: opts.allowedDow === undefined ? null : opts.allowedDow, // 0=Sun..6=Sat or null
         minISO: opts.minISO || '',
+        allowISO: opts.allowISO || '', // a specific date always selectable (e.g. today on create)
         sundayFirst: !!opts.sundayFirst,
         placeholder: opts.placeholder || 'Pick a date',
         open: false,
@@ -76,8 +77,9 @@ document.addEventListener('alpine:init', () => {
             for (let day = 1; day <= this.daysInMonth; day++) {
                 const dt = new Date(this.viewYear, this.viewMonth, day);
                 const iso = this.toISO(dt);
-                const disabled = (this.allowedDow !== null && dt.getDay() !== this.allowedDow)
-                    || (this.minISO && iso < this.minISO);
+                const disabled = iso !== this.allowISO
+                    && ((this.allowedDow !== null && dt.getDay() !== this.allowedDow)
+                        || (this.minISO && iso < this.minISO));
                 out.push({ day, iso, disabled, selected: iso === this.selected });
             }
             return out;
@@ -109,7 +111,7 @@ document.addEventListener('alpine:init', () => {
             this.open = false;
         },
         get showToday() {
-            return this.allowedDow === null;
+            return this.allowedDow === null || this.allowISO === this.toISO(new Date());
         },
     }));
 });

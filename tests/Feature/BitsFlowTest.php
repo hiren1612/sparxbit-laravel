@@ -59,6 +59,27 @@ class BitsFlowTest extends TestCase
         $this->assertDatabaseHas('bits', ['user_id' => $user->id, 'title' => 'Meditate', 'goal_per_week' => 3, 'icon_key' => 'lotus']);
     }
 
+    public function test_new_bit_defaults_to_today_and_saves(): void
+    {
+        $user = $this->user();
+        $today = $user->localToday()->toDateString();
+
+        Livewire::actingAs($user)->test(Create::class)
+            ->assertSet('startDate', $today)       // defaults to today, whatever weekday
+            ->set('title', 'Journal')
+            ->call('save')
+            ->assertHasNoErrors();
+
+        $this->assertDatabaseHas('bits', ['user_id' => $user->id, 'title' => 'Journal', 'start_date' => $today]);
+
+        // A past date is rejected.
+        Livewire::actingAs($user)->test(Create::class)
+            ->set('title', 'Old')
+            ->set('startDate', now()->subWeeks(2)->startOfWeek(\Carbon\Carbon::MONDAY)->toDateString())
+            ->call('save')
+            ->assertHasErrors('startDate');
+    }
+
     public function test_title_is_trimmed_and_tags_stripped(): void
     {
         $user = $this->user();

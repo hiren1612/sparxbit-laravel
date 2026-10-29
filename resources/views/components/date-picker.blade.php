@@ -1,6 +1,6 @@
-@props(['field', 'value' => '', 'allowedDow' => null, 'min' => null, 'sundayFirst' => false, 'placeholder' => 'Pick a date'])
+@props(['field', 'value' => '', 'allowedDow' => null, 'min' => null, 'allow' => null, 'sundayFirst' => false, 'placeholder' => 'Pick a date'])
 <div wire:ignore
-    x-data="sparxDatePicker({ field: '{{ $field }}', allowedDow: {{ $allowedDow === null ? 'null' : (int) $allowedDow }}, minISO: '{{ $min }}', sundayFirst: {{ $sundayFirst ? 'true' : 'false' }}, placeholder: '{{ $placeholder }}' })"
+    x-data="sparxDatePicker({ field: '{{ $field }}', allowedDow: {{ $allowedDow === null ? 'null' : (int) $allowedDow }}, minISO: '{{ $min }}', allowISO: '{{ $allow }}', sundayFirst: {{ $sundayFirst ? 'true' : 'false' }}, placeholder: '{{ $placeholder }}' })"
     style="position:relative; width:100%;">
     <button type="button" @click="open = !open" class="field-input" style="display:flex; align-items:center; justify-content:space-between; text-align:left; cursor:pointer;">
         <span x-text="display()" :style="hasValue() ? 'color:var(--text); font-weight:600;' : 'color:var(--text-meta);'"></span>

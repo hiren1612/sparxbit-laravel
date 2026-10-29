@@ -76,24 +76,29 @@ abstract class BitForm extends Component
         $startDow = $sundayFirst ? 0 : 1; // 0=Sun, 1=Mon
         $startDayName = $sundayFirst ? 'Sunday' : 'Monday';
         $future = $this->startMustBeFuture();
-        // Earliest allowed start = the beginning of the CURRENT week, so a bit
-        // created mid-week starts this week (and shows today), not next week.
-        $minStart = auth()->user()->localToday()->startOfWeek($sundayFirst ? Carbon::SUNDAY : Carbon::MONDAY);
+        // On create: today is always a valid start (the default); otherwise the
+        // start must be an upcoming week-start day — never in the past.
+        $today = auth()->user()->localToday();
+        $minStart = $today;
+        $todayISO = $today->format('Y-m-d');
 
         return [
             'title' => 'required|string|max:50',
             'why' => 'nullable|string|max:300',
             'description' => 'nullable|string|max:500',
             'goalPerWeek' => 'required|integer|min:1|max:7',
-            'startDate' => ['required', 'date', function ($attr, $value, $fail) use ($startDow, $startDayName, $future, $minStart) {
+            'startDate' => ['required', 'date', function ($attr, $value, $fail) use ($startDow, $startDayName, $future, $minStart, $todayISO) {
                 if ($value === $this->grandfatheredStart) {
                     return; // unchanged existing start — leave it as-is
                 }
+                if ($future && $value === $todayISO) {
+                    return; // a new Bit may always start today
+                }
                 $d = Carbon::parse($value);
-                if ((int) $d->format('w') !== $startDow) {
-                    $fail("Start date must be a {$startDayName} (bits run in whole weeks).");
-                } elseif ($future && $d->lt($minStart)) {
-                    $fail('Start date cannot be before this week.');
+                if ($future && $d->lt($minStart)) {
+                    $fail('Start date cannot be in the past.');
+                } elseif ((int) $d->format('w') !== $startDow) {
+                    $fail("Start date must be today or a {$startDayName} (bits run in whole weeks).");
                 }
             }],
             'endDate' => ['nullable', 'date', 'after:startDate', function ($attr, $value, $fail) {
@@ -223,9 +228,9 @@ abstract class BitForm extends Component
             'dayButtons' => $sundayFirst ? $sunFirst : $monFirst,
             'sundayFirst' => $sundayFirst,
             'startDow' => $sundayFirst ? 0 : 1,
-            'startMin' => $this->startMustBeFuture()
-                ? auth()->user()->localToday()->startOfWeek($sundayFirst ? Carbon::SUNDAY : Carbon::MONDAY)->format('Y-m-d')
-                : null,
+            'startMin' => $this->startMustBeFuture() ? auth()->user()->localToday()->format('Y-m-d') : null,
+            // On create, today is selectable even when it isn't the week-start day.
+            'startAllow' => $this->startMustBeFuture() ? auth()->user()->localToday()->format('Y-m-d') : null,
             'endMin' => $this->startDate ? Carbon::parse($this->startDate)->addDay()->format('Y-m-d') : null,
         ]);
     }
