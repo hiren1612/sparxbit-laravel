@@ -29,8 +29,14 @@ class Setting extends Model
         return $value ?? $default;
     }
 
+    public static function flushCache(): void
+    {
+        self::$cache = [];
+    }
+
     protected static function booted(): void
     {
-        static::saved(fn () => self::$cache = []);
+        static::saved(fn () => self::flushCache());
+        static::deleted(fn () => self::flushCache());
     }
 }

@@ -84,4 +84,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('ads/feed', [AdController::class, 'feed']);
     Route::post('feedback', [FeedbackController::class, 'store']);
     Route::post('achievements/sync', [AchievementController::class, 'sync']);
+
+    // Admin-editable app copy (Filament → Settings), shared with the website.
+    Route::get('app-content', fn () => [
+        'aboutTagline' => \App\Models\Setting::get('about.tagline'),
+        'aboutFooter' => \App\Models\Setting::get('about.footer'),
+    ]);
 });
