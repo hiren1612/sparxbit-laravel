@@ -93,6 +93,10 @@ class Dashboard extends Component
 
     public function selectDay(string $iso): void
     {
+        // Future days are disabled in the strip — ignore them.
+        if ($iso > auth()->user()->localToday()->format('Y-m-d')) {
+            return;
+        }
         $this->selectedDateISO = $iso;
     }
 
@@ -253,6 +257,7 @@ class Dashboard extends Component
             'dow' => strtoupper(substr($d->format('D'), 0, 1)),
             'isToday' => $this->weekOffset === 0 && $d->format('Y-m-d') === $todayISO,
             'isSelected' => $d->format('Y-m-d') === $this->selectedDateISO,
+            'isFuture' => $d->format('Y-m-d') > $todayISO,
             'hasDone' => $this->weekOffset === 0
                 && $entries->first(fn ($e) => $e->date->format('Y-m-d') === $d->format('Y-m-d') && $e->status === 'done') !== null,
         ]);

@@ -49,9 +49,11 @@
     {{-- Day strip --}}
     <div style="display:grid; grid-template-columns:repeat(7,1fr); gap:6px; margin-bottom:22px;">
         @foreach ($strip as $d)
-            <button type="button" wire:click="selectDay('{{ $d['iso'] }}')" style="display:flex; flex-direction:column; align-items:center; gap:6px; background:none; border:none; cursor:pointer; padding:0;">
-                <span style="font-size:11px; font-weight:600; color:var(--text-meta);">{{ $d['dow'] }}</span>
-                <span class="day-circle @if($d['isSelected']) is-selected @elseif($d['isToday']) is-today @endif">
+            <button type="button" wire:click="selectDay('{{ $d['iso'] }}')" @disabled($d['isFuture'])
+                @if($d['isFuture']) aria-label="{{ $d['day'] }} — upcoming, not available yet" @endif
+                style="display:flex; flex-direction:column; align-items:center; gap:6px; background:none; border:none; padding:0; cursor:{{ $d['isFuture'] ? 'not-allowed' : 'pointer' }};">
+                <span style="font-size:11px; font-weight:600; color:var(--text-meta); {{ $d['isFuture'] ? 'opacity:.45;' : '' }}">{{ $d['dow'] }}</span>
+                <span class="day-circle @if($d['isSelected']) is-selected @elseif($d['isToday']) is-today @elseif($d['isFuture']) is-future @endif">
                     {{ $d['day'] }}
                     @if($d['hasDone'])<span class="day-dot"></span>@endif
                 </span>

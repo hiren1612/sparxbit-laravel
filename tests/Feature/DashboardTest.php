@@ -122,22 +122,22 @@ class DashboardTest extends TestCase
         \Illuminate\Support\Carbon::setTestNow();
     }
 
-    public function test_future_day_is_viewable_but_not_checkable(): void
+    public function test_future_days_are_disabled_and_not_checkable(): void
     {
         $user = $this->freshUser();
         $bit = Bit::create([
             'user_id' => $user->id, 'title' => 'Run', 'icon_key' => 'run',
             'goal_per_week' => 5, 'status' => 'active', 'start_date' => now()->subWeek()->toDateString(),
         ]);
+        $today = $user->localToday()->toDateString();
         $tomorrow = $user->localToday()->addDay()->toDateString();
 
-        Livewire::actingAs($user)->test(Dashboard::class)
+        $component = Livewire::actingAs($user)->test(Dashboard::class)
             ->call('selectDay', $tomorrow)
-            ->assertSet('selectedDateISO', $tomorrow)
-            ->assertSee('Run')
-            ->assertSee('Upcoming day')
-            ->call('toggle', $bit->id); // even a forced call must not record it
+            ->assertSet('selectedDateISO', $today); // future tap is ignored
 
+        // Even forcing a future date and toggling must not record anything.
+        $component->set('selectedDateISO', $tomorrow)->call('toggle', $bit->id);
         $this->assertDatabaseMissing('entries', ['bit_id' => $bit->id, 'date' => $tomorrow]);
     }
 
