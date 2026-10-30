@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\CatalogController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\EntryController;
 use App\Http\Controllers\Api\FeedbackController;
+use App\Http\Controllers\Api\MobileAuthController;
 use App\Http\Controllers\Api\OnboardingController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\ReferralController;
@@ -16,6 +17,11 @@ use Illuminate\Support\Facades\Route;
 // --- Public ---
 Route::post('auth/register', [AuthController::class, 'register']);
 Route::post('auth/login', [AuthController::class, 'login']);
+
+// Mobile passwordless + social sign-in.
+Route::post('auth/magic/request', [MobileAuthController::class, 'magicRequest'])->middleware('throttle:3,1');
+Route::post('auth/magic/verify', [MobileAuthController::class, 'magicVerify'])->middleware('throttle:10,1');
+Route::post('auth/social', [MobileAuthController::class, 'social'])->middleware('throttle:10,1');
 
 Route::get('health', function () {
     try {

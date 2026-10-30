@@ -39,6 +39,9 @@ return [
         'client_id' => env('GOOGLE_CLIENT_ID'),
         'client_secret' => env('GOOGLE_CLIENT_SECRET'),
         'redirect' => env('GOOGLE_REDIRECT_URI', env('APP_URL').'/auth/google/callback'),
+        // OAuth client IDs of the iOS / Android apps (comma-separated) — mobile
+        // Google ID tokens must be issued to one of these (or the web client).
+        'mobile_client_ids' => array_filter(explode(',', (string) env('GOOGLE_MOBILE_CLIENT_IDS', ''))),
     ],
 
     'apple' => [
@@ -49,6 +52,8 @@ return [
         'team_id' => env('APPLE_TEAM_ID'),
         'key_id' => env('APPLE_KEY_ID'),
         'private_key' => env('APPLE_PRIVATE_KEY'),       // contents of the .p8 (or a path)
+        // Native iOS Sign in with Apple tokens are issued to the app bundle ID.
+        'audiences' => [env('APPLE_BUNDLE_ID', 'com.sparxbit.app')],
     ],
 
     'webpush' => [

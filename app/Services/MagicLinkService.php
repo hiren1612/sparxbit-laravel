@@ -10,8 +10,8 @@ use Illuminate\Support\Str;
 class MagicLinkService
 {
     // Create a single-use, 20-minute magic-link token for an email and return
-    // the full sign-in URL to send them.
-    public static function issue(string $email): string
+    // the full sign-in URL to send them. $forApp links open the mobile app.
+    public static function issue(string $email, bool $forApp = false): string
     {
         $email = strtolower(trim($email));
         $token = Str::random(48);
@@ -22,7 +22,7 @@ class MagicLinkService
             'expires_at' => now()->addMinutes(20),
         ]);
 
-        return route('magic.verify', ['token' => $token]);
+        return route($forApp ? 'magic.app' : 'magic.verify', ['token' => $token]);
     }
 
     // Consume a token: returns the (found-or-created, provisioned) user, or null

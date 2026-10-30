@@ -16,6 +16,12 @@ Route::get('/', function () {
 });
 
 // Public legal pages (linked from login + About).
+// Magic link for the mobile app: a tiny page that bounces into the app
+// (sparxbit://magic?token=…). It does NOT consume the token — the app does.
+Route::get('auth/magic/app/{token}', fn (string $token) => view('auth.magic-app', ['token' => $token]))
+    ->where('token', '[A-Za-z0-9]{20,128}')
+    ->name('magic.app');
+
 Route::get('terms', App\Livewire\Legal::class)->defaults('doc', 'terms')->name('terms');
 Route::get('privacy', App\Livewire\Legal::class)->defaults('doc', 'privacy')->name('privacy');
 Route::get('licenses', App\Livewire\Legal::class)->defaults('doc', 'licenses')->name('licenses');
