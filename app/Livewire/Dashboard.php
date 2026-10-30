@@ -106,6 +106,11 @@ class Dashboard extends Component
             return;
         }
         $date = $this->selectedDateISO;
+        // Strict rule (matches the original): only today or past days can be
+        // checked — never a future day.
+        if ($date > $user->localToday()->format('Y-m-d')) {
+            return;
+        }
         $entry = Entry::where('bit_id', $bitId)->whereDate('date', $date)->first();
 
         if ($entry && $entry->status === 'done') {

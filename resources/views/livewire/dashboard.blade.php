@@ -97,8 +97,13 @@
     </div>
 
     {{-- Motivating one-liner --}}
-    @if($totalCount > 0)
-        <div style="font-size:13px; margin-bottom:14px; color:{{ $doneCount >= $totalCount ? 'var(--green,#22C55E)' : 'var(--text-meta)' }};">
+    @if($totalCount > 0 && $isSelectedFuture)
+        <div style="display:flex; align-items:center; gap:7px; font-size:12.5px; margin-bottom:14px; color:var(--text-meta);">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg>
+            Upcoming day — you can tick these off on the day.
+        </div>
+    @elseif($totalCount > 0)
+        <div style="font-size:13px; margin-bottom:14px; color:{{ $doneCount >= $totalCount ? 'var(--green)' : 'var(--text-meta)' }};">
             @if($doneCount >= $totalCount) All done for today — nice work! 🎉 @else {{ $doneCount }} of {{ $totalCount }} done 💪 @endif
         </div>
     @endif
@@ -120,9 +125,13 @@
                 </div>
             </div>
             <button type="button" wire:click="toggle('{{ $bit['id'] }}')" @disabled($isSelectedFuture)
-                class="check-circle @if($bit['doneSelected']) is-done @endif" aria-label="Toggle {{ $bit['title'] }}">
+                class="check-circle @if($bit['doneSelected']) is-done @endif @if($isSelectedFuture) is-future @endif"
+                aria-label="{{ $isSelectedFuture ? 'Future day — not checkable yet' : 'Toggle '.$bit['title'] }}"
+                @if($isSelectedFuture) title="You can tick this off on the day" @endif>
                 @if($bit['doneSelected'])
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                @elseif($isSelectedFuture)
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-meta)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg>
                 @endif
             </button>
         </div>

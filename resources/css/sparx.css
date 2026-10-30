@@ -920,6 +920,8 @@ textarea::placeholder {
 .check-circle { width:34px; height:34px; border-radius:50%; border:2px solid #d8dae8; background:var(--surface); display:flex; align-items:center; justify-content:center; color:transparent; cursor:pointer; flex-shrink:0; transition:all .16s ease; }
 .check-circle:hover { border-color:var(--focus-ring); }
 .check-circle.is-done { background:var(--green); border-color:var(--green); color:#fff; }
+.check-circle.is-future, .check-circle:disabled { cursor:not-allowed; border-style:dashed; border-color:var(--border); background:var(--surface-tint); }
+.check-circle.is-future:hover { border-color:var(--border); }
 
 /* Section label + content card */
 .sec-label { font-size:10px; font-weight:600; color:var(--text-meta); letter-spacing:.1em; text-transform:uppercase; }
