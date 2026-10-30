@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\AchievementController;
 use App\Http\Controllers\Api\AdController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BitController;
@@ -82,4 +83,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('referrals/claim', [ReferralController::class, 'claim']);
     Route::get('ads/feed', [AdController::class, 'feed']);
     Route::post('feedback', [FeedbackController::class, 'store']);
+    Route::post('achievements/sync', [AchievementController::class, 'sync']);
 });
