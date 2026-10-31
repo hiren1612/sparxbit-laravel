@@ -11,12 +11,22 @@ class AchievementService
 {
     public const STREAK_MILESTONES = [7, 30];
 
-    // Award any newly-earned trophies for the user and return the most notable
-    // new one to celebrate (or null if nothing new).
+    // Award any newly-earned trophies and return the most notable new one
+    // (or null if nothing new).
     public static function sync(User $user): ?Achievement
     {
+        $all = self::syncAll($user);
+
+        return $all ? end($all) : null;
+    }
+
+    // Award any newly-earned trophies and return ALL of them, in the order to
+    // celebrate: each Bit goal 🎯, then weekly 🏆, then streak 🔥 — so a Bit
+    // that completes the whole week shows both its own trophy and the weekly one.
+    public static function syncAll(User $user): array
+    {
         $week = $user->localToday()->isoFormat('GGGG-[W]WW');
-        $candidates = []; // priority => Achievement (higher priority wins the popup)
+        $candidates = []; // in celebration order
 
         // 1) Per-Bit weekly goal — one per Bit per ISO week (lowest priority).
         foreach (self::bitsHittingGoal($user) as $bit) {
@@ -24,7 +34,7 @@ class AchievementService
                 "{$bit->title} goal hit! 🎯",
                 "You reached your weekly goal for {$bit->title}. Nice work — keep it rolling!");
             if ($a) {
-                $candidates[1] = $a;
+                $candidates[] = $a;
             }
         }
 
@@ -34,7 +44,7 @@ class AchievementService
                 'Weekly goal smashed! 🎉',
                 "You hit your goal on every Bit this week. Incredible consistency — keep the momentum going!");
             if ($a) {
-                $candidates[2] = $a;
+                $candidates[] = $a;
             }
         }
 
@@ -46,17 +56,28 @@ class AchievementService
                     "{$m}-day streak unlocked! 🔥",
                     "You've shown up ".$m." days in a row. That's how habits are built — you're doing amazing!");
                 if ($a) {
-                    $candidates[3] = $a;
+                    $candidates[] = $a;
                 }
             }
         }
 
-        if (empty($candidates)) {
-            return null;
-        }
-        ksort($candidates);
+        return $candidates;
+    }
 
-        return end($candidates); // highest-priority newly-earned achievement
+    // Popup payload for one trophy (title, body, share link with referral code).
+    public static function celebration(User $user, Achievement $a): array
+    {
+        if (! $user->referral_code) {
+            $user->update(['referral_code' => UserProvisioning::genReferralCode()]);
+        }
+
+        return [
+            'type' => $a->type,
+            'title' => $a->title,
+            'body' => $a->body,
+            'shareUrl' => url('/?ref='.strtolower($user->referral_code)),
+            'shareText' => 'I just unlocked "'.$a->title.'" on Sparx Bit! 🎉 Build better habits with me:',
+        ];
     }
 
     // Active Bits that have reached their weekly goal in the current week.

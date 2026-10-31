@@ -14,6 +14,9 @@ class Dashboard extends Component
     public string $selectedDateISO = '';
     public ?array $celebration = null;
 
+    /** @var array<int, array> trophies waiting to be shown after the current one */
+    public array $celebrationQueue = [];
+
     private const ICONS = [
         'run' => '🏃', 'walk' => '🚶', 'book' => '📖', 'droplet' => '💧', 'moon' => '🌙',
         'target' => '🎯', 'lotus' => '🧘', 'meditate' => '🧘', 'pen' => '✍️', 'home' => '🏠',
@@ -50,30 +53,26 @@ class Dashboard extends Component
     }
 
     // Award any newly-earned trophies and queue a celebration popup.
+    // Every newly-earned trophy (🎯 per Bit, 🏆 weekly, 🔥 streak), shown one
+    // after another: "Awesome, continue →" opens the next.
     private function celebrate(): void
     {
-        $achievement = \App\Services\AchievementService::sync(auth()->user());
-        if (! $achievement) {
+        $new = \App\Services\AchievementService::syncAll(auth()->user());
+        if (! $new) {
             return;
         }
-
-        $user = auth()->user();
-        if (! $user->referral_code) {
-            $user->update(['referral_code' => \App\Services\UserProvisioning::genReferralCode()]);
+        $queue = array_map(fn ($a) => \App\Services\AchievementService::celebration(auth()->user(), $a), $new);
+        if ($this->celebration) {
+            $this->celebrationQueue = array_merge($this->celebrationQueue, $queue);
+        } else {
+            $this->celebration = array_shift($queue);
+            $this->celebrationQueue = array_merge($this->celebrationQueue, $queue);
         }
-
-        $this->celebration = [
-            'type' => $achievement->type,
-            'title' => $achievement->title,
-            'body' => $achievement->body,
-            'shareUrl' => url('/?ref='.strtolower($user->referral_code)),
-            'shareText' => 'I just unlocked "'.$achievement->title.'" on Sparx Bit! 🎉 Build better habits with me:',
-        ];
     }
 
     public function dismissCelebration(): void
     {
-        $this->celebration = null;
+        $this->celebration = array_shift($this->celebrationQueue);
     }
 
     public function prevWeek(): void

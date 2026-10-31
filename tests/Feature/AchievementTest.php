@@ -119,8 +119,11 @@ class AchievementTest extends TestCase
 
         Livewire::actingAs($user)->test(Dashboard::class)
             ->call('toggle', $bit->id)
-            ->assertSet('celebration', fn ($c) => is_array($c) && $c['type'] === 'weekly')
+            // The Bit's own 🎯 first, then the weekly 🏆 it also completed.
+            ->assertSet('celebration', fn ($c) => is_array($c) && $c['type'] === 'bit')
             ->assertSee('Share your trophy')
+            ->call('dismissCelebration')
+            ->assertSet('celebration', fn ($c) => is_array($c) && $c['type'] === 'weekly')
             ->call('dismissCelebration')
             ->assertSet('celebration', null);
     }

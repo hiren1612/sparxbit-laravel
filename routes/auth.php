@@ -20,8 +20,6 @@ Route::middleware('guest')->group(function () {
     // Social sign-in (Google / Apple). Apple returns via a cross-site POST.
     Route::get('auth/{provider}/redirect', [SocialAuthController::class, 'redirect'])
         ->name('social.redirect');
-    Route::match(['get', 'post'], 'auth/{provider}/callback', [SocialAuthController::class, 'callback'])
-        ->name('social.callback');
 
     Volt::route('forgot-password', 'pages.auth.forgot-password')
         ->name('password.request');
@@ -29,6 +27,13 @@ Route::middleware('guest')->group(function () {
     Volt::route('reset-password/{token}', 'pages.auth.reset-password')
         ->name('password.reset');
 });
+
+// Outside "guest": the mobile app's in-app browser may share a signed-in
+// website session, and the app sign-in must still run.
+Route::match(['get', 'post'], 'auth/{provider}/callback', [SocialAuthController::class, 'callback'])
+    ->name('social.callback');
+Route::get('auth/{provider}/app', [SocialAuthController::class, 'appRedirect'])
+    ->name('social.app');
 
 Route::middleware('auth')->group(function () {
     Volt::route('verify-email', 'pages.auth.verify-email')

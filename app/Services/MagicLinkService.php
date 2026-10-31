@@ -13,16 +13,22 @@ class MagicLinkService
     // the full sign-in URL to send them. $forApp links open the mobile app.
     public static function issue(string $email, bool $forApp = false): string
     {
-        $email = strtolower(trim($email));
-        $token = Str::random(48);
+        $token = self::issueToken($email);
 
+        return route($forApp ? 'magic.app' : 'magic.verify', ['token' => $token]);
+    }
+
+    // Create a single-use, 20-minute token (the raw value; only its hash is stored).
+    public static function issueToken(string $email): string
+    {
+        $token = Str::random(48);
         MagicLink::create([
-            'email' => $email,
+            'email' => strtolower(trim($email)),
             'token_hash' => hash('sha256', $token),
             'expires_at' => now()->addMinutes(20),
         ]);
 
-        return route($forApp ? 'magic.app' : 'magic.verify', ['token' => $token]);
+        return $token;
     }
 
     // Consume a token: returns the (found-or-created, provisioned) user, or null
