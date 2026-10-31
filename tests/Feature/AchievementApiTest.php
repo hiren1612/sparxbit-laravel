@@ -74,4 +74,31 @@ class AchievementApiTest extends TestCase
         $c->call('dismissCelebration');
         $this->assertNull($c->get('celebration'));
     }
+
+    public function test_a_trophy_keeps_coming_back_until_its_popup_was_shown(): void
+    {
+        $user = User::factory()->create(['timezone' => 'UTC', 'week_starts_on' => 'monday', 'onboarding_completed_at' => now()]);
+        app(UserProvisioning::class)->seedNewUser($user);
+        Sanctum::actingAs($user->fresh());
+        $today = $user->localToday()->toDateString();
+        $bit = Bit::create(['user_id' => $user->id, 'title' => 'Water', 'icon_key' => 'water', 'goal_per_week' => 1, 'status' => 'active', 'start_date' => $today]);
+        Entry::create(['bit_id' => $bit->id, 'user_id' => $user->id, 'date' => $today, 'status' => 'done', 'source' => 'manual']);
+
+        // Awarded, but the popup never appeared (response lost / app closed).
+        $first = $this->postJson('/api/achievements/sync')->json('celebrations');
+        $this->assertCount(2, $first);
+
+        // Still offered on the next check…
+        $again = $this->postJson('/api/achievements/sync')->json('celebrations');
+        $this->assertSame(array_column($first, 'id'), array_column($again, 'id'));
+
+        // …and on the website too, until one of them shows it.
+        \Livewire\Livewire::actingAs($user->fresh())->test(\App\Livewire\Dashboard::class)
+            ->assertSet('celebration', fn ($c) => $c['type'] === 'bit');
+
+        // The phone shows both and reports them seen → gone everywhere.
+        $this->postJson('/api/achievements/seen', ['ids' => array_column($first, 'id')])->assertOk();
+        $this->assertSame([], $this->postJson('/api/achievements/sync')->json('celebrations'));
+        \Livewire\Livewire::actingAs($user->fresh())->test(\App\Livewire\Dashboard::class)->assertSet('celebration', null);
+    }
 }

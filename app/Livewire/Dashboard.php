@@ -53,25 +53,30 @@ class Dashboard extends Component
     }
 
     // Award any newly-earned trophies and queue a celebration popup.
-    // Every newly-earned trophy (🎯 per Bit, 🏆 weekly, 🔥 streak), shown one
-    // after another: "Awesome, continue →" opens the next.
+    // Every trophy not yet celebrated (🎯 per Bit, 🏆 weekly, 🔥 streak), shown
+    // one after another: "Awesome, continue →" marks it seen and opens the next.
+    // Unseen trophies keep coming back until shown — e.g. one earned on the phone.
     private function celebrate(): void
     {
-        $new = \App\Services\AchievementService::syncAll(auth()->user());
-        if (! $new) {
-            return;
+        $user = auth()->user();
+        \App\Services\AchievementService::syncAll($user);
+        $have = array_column(array_filter([$this->celebration, ...$this->celebrationQueue]), 'id');
+        foreach (\App\Services\AchievementService::unseen($user) as $a) {
+            if (in_array($a->id, $have, true)) {
+                continue;
+            }
+            $this->celebrationQueue[] = \App\Services\AchievementService::celebration($user, $a);
         }
-        $queue = array_map(fn ($a) => \App\Services\AchievementService::celebration(auth()->user(), $a), $new);
-        if ($this->celebration) {
-            $this->celebrationQueue = array_merge($this->celebrationQueue, $queue);
-        } else {
-            $this->celebration = array_shift($queue);
-            $this->celebrationQueue = array_merge($this->celebrationQueue, $queue);
+        if (! $this->celebration) {
+            $this->celebration = array_shift($this->celebrationQueue);
         }
     }
 
     public function dismissCelebration(): void
     {
+        if ($this->celebration['id'] ?? null) {
+            \App\Services\AchievementService::markSeen(auth()->user(), [$this->celebration['id']]);
+        }
         $this->celebration = array_shift($this->celebrationQueue);
     }
 

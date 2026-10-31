@@ -64,6 +64,18 @@ class AchievementService
         return $candidates;
     }
 
+    // Trophies earned but whose popup hasn't been shown and closed yet, oldest
+    // first (the order they were earned: 🎯, then 🏆, then 🔥).
+    public static function unseen(User $user): array
+    {
+        return Achievement::where('user_id', $user->id)->whereNull('seen_at')->orderBy('id')->get()->all();
+    }
+
+    public static function markSeen(User $user, array $ids): void
+    {
+        Achievement::where('user_id', $user->id)->whereIn('id', $ids)->whereNull('seen_at')->update(['seen_at' => now()]);
+    }
+
     // Popup payload for one trophy (title, body, share link with referral code).
     public static function celebration(User $user, Achievement $a): array
     {
@@ -72,6 +84,7 @@ class AchievementService
         }
 
         return [
+            'id' => $a->id,
             'type' => $a->type,
             'title' => $a->title,
             'body' => $a->body,

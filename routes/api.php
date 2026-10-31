@@ -85,6 +85,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('ads/feed', [AdController::class, 'feed']);
     Route::post('feedback', [FeedbackController::class, 'store']);
     Route::post('achievements/sync', [AchievementController::class, 'sync']);
+    Route::post('achievements/seen', [AchievementController::class, 'seen']);
     Route::get('notifications', [App\Http\Controllers\Api\NotificationController::class, 'index']);
     Route::post('notifications/seen', [App\Http\Controllers\Api\NotificationController::class, 'seen']);
 
