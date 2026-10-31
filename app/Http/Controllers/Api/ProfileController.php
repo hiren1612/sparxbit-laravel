@@ -24,6 +24,7 @@ class ProfileController extends Controller
         $data = $request->validate([
             'fullName' => 'sometimes|nullable|string|max:60',
             'username' => ['sometimes', 'nullable', 'string', 'max:30', 'alpha_dash', Rule::unique('users', 'username')->ignore($user->id)],
+            'email' => ['sometimes', 'email', Rule::unique('users', 'email')->ignore($user->id)],
             'bio' => 'sometimes|nullable|string|max:160',
             'avatarUrl' => 'sometimes|nullable|string',
             'timezone' => 'sometimes|string',
@@ -41,7 +42,7 @@ class ProfileController extends Controller
         ]);
 
         $map = [
-            'fullName' => 'name', 'username' => 'username', 'bio' => 'bio', 'avatarUrl' => 'avatar_url',
+            'fullName' => 'name', 'email' => 'email', 'username' => 'username', 'bio' => 'bio', 'avatarUrl' => 'avatar_url',
             'timezone' => 'timezone', 'weekStartsOn' => 'week_starts_on', 'theme' => 'theme', 'language' => 'language',
             'notificationsPushEnabled' => 'notifications_push_enabled', 'defaultReminderTime' => 'default_reminder_time',
             'notificationsWeeklySummary' => 'notifications_weekly_summary', 'notificationsProductUpdates' => 'notifications_product_updates',

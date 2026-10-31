@@ -41,4 +41,12 @@ class ProfileAvatarApiTest extends TestCase
         $this->patchJson('/api/me', ['avatarUrl' => 'emoji:🚀', 'username' => 'Hiren-B'])
             ->assertOk()->assertJson(['avatarUrl' => 'emoji:🚀', 'username' => 'Hiren-B']);
     }
+
+    public function test_changes_email_like_the_website(): void
+    {
+        $other = User::factory()->create(['email' => 'taken@example.com']);
+        Sanctum::actingAs(User::factory()->create());
+        $this->patchJson('/api/me', ['email' => 'taken@example.com'])->assertStatus(422);
+        $this->patchJson('/api/me', ['email' => 'new@example.com'])->assertOk()->assertJson(['email' => 'new@example.com']);
+    }
 }
