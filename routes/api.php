@@ -48,6 +48,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('me', [ProfileController::class, 'me']);
     Route::patch('me', [ProfileController::class, 'update']);
     Route::delete('me', [ProfileController::class, 'destroy']);
+    Route::post('me/avatar', [ProfileController::class, 'avatar']);
     Route::post('me/archive', [ProfileController::class, 'archive']);
     Route::post('me/reset', [ProfileController::class, 'reset']);
     Route::post('onboarding/finish', [ProfileController::class, 'finishOnboarding']);

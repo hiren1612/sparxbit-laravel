@@ -23,7 +23,7 @@ class ProfileController extends Controller
         $user = $request->user();
         $data = $request->validate([
             'fullName' => 'sometimes|nullable|string|max:60',
-            'username' => ['sometimes', 'nullable', 'string', 'regex:/^[a-z0-9_]{3,24}$/', Rule::unique('users', 'username')->ignore($user->id)],
+            'username' => ['sometimes', 'nullable', 'string', 'max:30', 'alpha_dash', Rule::unique('users', 'username')->ignore($user->id)],
             'bio' => 'sometimes|nullable|string|max:160',
             'avatarUrl' => 'sometimes|nullable|string',
             'timezone' => 'sometimes|string',
@@ -56,6 +56,16 @@ class ProfileController extends Controller
         $user->update($patch);
 
         return new UserResource($user->fresh());
+    }
+
+    // Profile photo upload (web: EditProfile photo) — stored on the public disk.
+    public function avatar(Request $request)
+    {
+        $request->validate(['photo' => 'required|image|max:4096']);
+        $path = $request->file('photo')->store('avatars', 'public');
+        $request->user()->update(['avatar_url' => \Illuminate\Support\Facades\Storage::url($path)]);
+
+        return new UserResource($request->user()->fresh());
     }
 
     public function archive(Request $request)
