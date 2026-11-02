@@ -16,6 +16,7 @@ class SocialAppAuthTest extends TestCase
     private function fakeGoogle(?string $email = 'new.person@gmail.com', bool $fail = false): void
     {
         $driver = Mockery::mock();
+        $driver->shouldReceive('redirectUrl')->andReturnSelf();
         $driver->shouldReceive('redirect')->andReturn(redirect('https://accounts.google.com/o/oauth2/auth'));
         if ($fail) {
             $driver->shouldReceive('user')->andThrow(new \RuntimeException('denied'));
@@ -62,5 +63,19 @@ class SocialAppAuthTest extends TestCase
         $this->fakeGoogle();
         $this->get('/auth/google/callback')->assertRedirect(route('welcome'));
         $this->assertAuthenticated();
+    }
+
+    public function test_google_return_address_ignores_a_wrong_env_url(): void
+    {
+        config([
+            'services.google.client_id' => 'test-client',
+            'services.google.client_secret' => 'secret',
+            'services.google.redirect' => 'http://127.0.0.1:8000/auth/google/callback', // the bad live value
+        ]);
+
+        // The visitor came in on the live address.
+        $location = $this->get('https://app.sparxbit.com/auth/google/app')->headers->get('Location');
+        parse_str(parse_url($location, PHP_URL_QUERY), $q);
+        $this->assertSame('https://app.sparxbit.com/auth/google/callback', $q['redirect_uri']);
     }
 }

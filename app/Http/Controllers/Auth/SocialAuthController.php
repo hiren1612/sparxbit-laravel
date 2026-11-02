@@ -23,7 +23,7 @@ class SocialAuthController extends Controller
     {
         abort_unless(in_array($provider, self::PROVIDERS, true), 404);
 
-        $driver = Socialite::driver($provider);
+        $driver = self::driver($provider);
 
         // Apple returns to the callback as a cross-site POST, so state can't
         // round-trip via the session cookie — go stateless there.
@@ -53,7 +53,7 @@ class SocialAuthController extends Controller
         $forApp = (bool) request()->cookie(self::APP_COOKIE);
 
         try {
-            $driver = Socialite::driver($provider);
+            $driver = self::driver($provider);
             if ($provider === 'apple') {
                 $driver = $driver->stateless();
             }
@@ -92,6 +92,14 @@ class SocialAuthController extends Controller
         request()->session()->regenerate();
 
         return redirect()->route($user->onboarding_completed_at ? 'dashboard' : 'welcome');
+    }
+
+    // The return address is built from the address this request came in on
+    // (https://app.sparxbit.com/auth/{provider}/callback), so a wrong APP_URL /
+    // *_REDIRECT_URI in .env (e.g. a local 127.0.0.1 one) can't break sign-in.
+    private static function driver(string $provider)
+    {
+        return Socialite::driver($provider)->redirectUrl(route('social.callback', $provider));
     }
 
     private function fail(bool $forApp, string $message)
