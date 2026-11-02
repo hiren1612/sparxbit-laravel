@@ -10,6 +10,8 @@
     <meta name="vapid-key" content="{{ config('services.webpush.public_key') }}">
     <meta name="user-tz" content="{{ auth()->user()?->timezone }}">
     <title>Sparx Bit</title>
+    <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('apple-touch-icon.png') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
