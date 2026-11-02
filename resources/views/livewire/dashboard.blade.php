@@ -126,9 +126,10 @@
                     <span class="progress-bar__fill" style="width:{{ $bit['pct'] }}%;"></span>
                 </div>
             </div>
-            <button type="button" wire:click="toggle('{{ $bit['id'] }}')" @disabled($isSelectedFuture)
+            <button type="button" wire:click="toggle('{{ $bit['id'] }}')" @disabled($isSelectedFuture || $isSelectedPast)
                 class="check-circle @if($bit['doneSelected']) is-done @endif @if($isSelectedFuture) is-future @endif"
-                aria-label="{{ $isSelectedFuture ? 'Future day — not checkable yet' : 'Toggle '.$bit['title'] }}"
+                @if($isSelectedPast) style="cursor:default; {{ $bit['doneSelected'] ? '' : 'opacity:.45;' }}" title="Past days can't be changed" @endif
+                aria-label="{{ $isSelectedFuture ? 'Future day — not checkable yet' : ($isSelectedPast ? $bit['title'].' — past day, can’t be changed' : 'Toggle '.$bit['title']) }}"
                 @if($isSelectedFuture) title="You can tick this off on the day" @endif>
                 @if($bit['doneSelected'])
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>

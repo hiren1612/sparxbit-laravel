@@ -61,7 +61,8 @@ class Calendar extends Component
         if (! $bit || $bit->is_system) {
             return;
         }
-        if ($iso > auth()->user()->localToday()->format('Y-m-d')) {
+        // Only today can be ticked or unticked (past days are a record).
+        if ($iso !== auth()->user()->localToday()->format('Y-m-d')) {
             return;
         }
         $entry = Entry::where('bit_id', $bitId)->whereDate('date', $iso)->first();
@@ -164,6 +165,7 @@ class Calendar extends Component
                         'iso' => $iso,
                         'done' => $doneOn($b->id, $iso) && ! $oor,
                         'isFuture' => $iso > $todayISO,
+                        'locked' => $iso !== $todayISO,
                         'outOfRange' => $oor,
                     ];
                 });
@@ -226,7 +228,7 @@ class Calendar extends Component
                     return [
                         'day' => $day, 'iso' => $iso,
                         'done' => ! $oor && $doneOn($b->id, $iso),
-                        'isFuture' => $iso > $todayISO, 'outOfRange' => $oor,
+                        'isFuture' => $iso > $todayISO, 'locked' => $iso !== $todayISO, 'outOfRange' => $oor,
                     ];
                 });
                 $doneCount = $cells->where('done', true)->count();

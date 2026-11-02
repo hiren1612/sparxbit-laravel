@@ -44,13 +44,13 @@
                             <span style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ $r['bit']->title }}</span>
                         </div>
                         @foreach ($r['dayStates'] as $d)
-                            <button type="button" @if(! $d['isFuture'] && ! $d['outOfRange']) wire:click="toggle('{{ $r['bit']->id }}','{{ $d['iso'] }}')" @else disabled @endif
+                            <button type="button" @if(! $d['locked'] && ! $d['outOfRange']) wire:click="toggle('{{ $r['bit']->id }}','{{ $d['iso'] }}')" @else disabled @endif
                                 aria-label="{{ $r['bit']->title }} {{ $d['iso'] }}"
                                 style="width:100%; aspect-ratio:1; max-width:30px; margin:0 auto; border-radius:7px;
                                 background:{{ $d['outOfRange'] ? 'transparent' : ($d['done'] ? $r['pal']['filled'] : $faded) }};
                                 opacity:{{ $d['outOfRange'] ? '.25' : ($d['isFuture'] ? '.35' : '1') }};
                                 border:{{ $d['outOfRange'] ? '1px dashed var(--border)' : 'none' }};
-                                cursor:{{ $d['isFuture'] || $d['outOfRange'] ? 'not-allowed' : 'pointer' }};"></button>
+                                cursor:{{ $d['isFuture'] || $d['outOfRange'] ? 'not-allowed' : ($d['locked'] ? 'default' : 'pointer') }};"></button>
                         @endforeach
                         <div style="display:flex; align-items:center; justify-content:center;">
                             @if ($r['isPerfect'])<span style="font-size:9px; font-weight:700; color:var(--blue-ink); background:rgba(91,141,239,.16); border-radius:999px; padding:2px 5px;">✓</span>@endif
@@ -76,12 +76,12 @@
                     </div>
                     <div style="display:grid; grid-template-columns:repeat(7,1fr); gap:3px;">
                         @foreach ($c['cells'] as $cell)
-                            <button type="button" @if(! $cell['isFuture'] && ! $cell['outOfRange']) wire:click="toggle('{{ $c['bit']->id }}','{{ $cell['iso'] }}')" @else disabled @endif
+                            <button type="button" @if(! $cell['locked'] && ! $cell['outOfRange']) wire:click="toggle('{{ $c['bit']->id }}','{{ $cell['iso'] }}')" @else disabled @endif
                                 style="aspect-ratio:1; border-radius:5px; border:none; font-size:8.5px; font-weight:600; display:flex; align-items:center; justify-content:center; padding:0; min-width:0; font-family:inherit;
                                 background:{{ $cell['outOfRange'] ? 'transparent' : ($cell['done'] ? $c['pal']['filled'] : $faded) }};
                                 color:{{ $cell['done'] ? '#fff' : $c['pal']['text'] }};
                                 opacity:{{ $cell['outOfRange'] ? '.2' : ($cell['isFuture'] ? '.35' : '1') }};
-                                cursor:{{ $cell['isFuture'] || $cell['outOfRange'] ? 'not-allowed' : 'pointer' }};">{{ $cell['day'] }}</button>
+                                cursor:{{ $cell['isFuture'] || $cell['outOfRange'] ? 'not-allowed' : ($cell['locked'] ? 'default' : 'pointer') }};">{{ $cell['day'] }}</button>
                         @endforeach
                     </div>
                     <div style="display:flex; align-items:center; justify-content:space-between; margin-top:8px; padding-top:6px; border-top:1px solid var(--border-i);">

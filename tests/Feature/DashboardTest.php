@@ -154,7 +154,8 @@ class DashboardTest extends TestCase
             ->assertDontSee('Future Habit');
     }
 
-    public function test_past_day_toggle_does_not_auto_check_in(): void
+    // Past days are a record: they can't be ticked (or unticked) any more.
+    public function test_past_day_cannot_be_toggled(): void
     {
         $user = $this->freshUser();
         $bit = Bit::create([
@@ -168,8 +169,7 @@ class DashboardTest extends TestCase
             ->set('selectedDateISO', $yesterday)
             ->call('toggle', $bit->id);
 
-        $this->assertDatabaseHas('entries', ['bit_id' => $bit->id, 'date' => $yesterday, 'status' => 'done']);
-        // The Daily Check-In must NOT be auto-stamped for a retroactive past day.
+        $this->assertDatabaseMissing('entries', ['bit_id' => $bit->id, 'date' => $yesterday]);
         $this->assertDatabaseMissing('entries', ['bit_id' => $system->id, 'date' => $yesterday]);
     }
 

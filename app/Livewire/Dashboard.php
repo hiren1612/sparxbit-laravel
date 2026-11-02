@@ -114,9 +114,9 @@ class Dashboard extends Component
             return;
         }
         $date = $this->selectedDateISO;
-        // Strict rule (matches the original): only today or past days can be
-        // checked — never a future day.
-        if ($date > $user->localToday()->format('Y-m-d')) {
+        // Only today can be ticked or unticked — past days are a record and
+        // future days haven't happened yet.
+        if ($date !== $user->localToday()->format('Y-m-d')) {
             return;
         }
         $entry = Entry::where('bit_id', $bitId)->whereDate('date', $date)->first();
@@ -371,6 +371,7 @@ class Dashboard extends Component
             'dashoffset' => $dashoffset,
             'isSelectedToday' => $isSelectedToday,
             'isSelectedFuture' => $isSelectedFuture,
+            'isSelectedPast' => $selected->lt($today),
             'checkinDone' => $checkinDone,
             'canNext' => $this->weekOffset < 0,
             'selectedLabel' => $selected->format('D, j M'),

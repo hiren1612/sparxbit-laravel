@@ -25,26 +25,35 @@ class AchievementService
     // that completes the whole week shows both its own trophy and the weekly one.
     public static function syncAll(User $user): array
     {
-        $week = $user->localToday()->isoFormat('GGGG-[W]WW');
         $candidates = []; // in celebration order
 
-        // 1) Per-Bit weekly goal — one per Bit per ISO week (lowest priority).
-        foreach (self::bitsHittingGoal($user) as $bit) {
-            $a = self::awardOnce($user, "bit:{$bit->id}:{$week}", 'bit',
-                "{$bit->title} goal hit! 🎯",
-                "You reached your weekly goal for {$bit->title}. Nice work — keep it rolling!");
-            if ($a) {
-                $candidates[] = $a;
-            }
-        }
+        // Last week first, then this week: a goal reached last week whose
+        // trophy was never created (tick uploaded late, app closed on Sunday
+        // night) is still celebrated once.
+        foreach ([1, 0] as $weeksAgo) {
+            $week = $user->localToday()->subWeeks($weeksAgo)->isoFormat('GGGG-[W]WW');
+            $when = $weeksAgo ? 'last week' : '';
 
-        // 2) Weekly goal smashed — every active Bit done this week.
-        if (self::weeklyGoalMet($user)) {
-            $a = self::awardOnce($user, 'weekly:'.$week, 'weekly',
-                'Weekly goal smashed! 🎉',
-                "You hit your goal on every Bit this week. Incredible consistency — keep the momentum going!");
-            if ($a) {
-                $candidates[] = $a;
+            // 1) Per-Bit weekly goal — one per Bit per ISO week.
+            foreach (self::bitsHittingGoal($user, $weeksAgo) as $bit) {
+                $a = self::awardOnce($user, "bit:{$bit->id}:{$week}", 'bit',
+                    "{$bit->title} goal hit! 🎯",
+                    trim("You reached your weekly goal for {$bit->title} {$when}").'. Nice work — keep it rolling!');
+                if ($a) {
+                    $candidates[] = $a;
+                }
+            }
+
+            // 2) Weekly goal smashed — every active Bit done that week.
+            if (self::weeklyGoalMet($user, $weeksAgo)) {
+                $a = self::awardOnce($user, 'weekly:'.$week, 'weekly',
+                    $weeksAgo ? "Last week's goal smashed! 🎉" : 'Weekly goal smashed! 🎉',
+                    $weeksAgo
+                        ? 'You hit your goal on every Bit last week. Incredible consistency — keep the momentum going!'
+                        : 'You hit your goal on every Bit this week. Incredible consistency — keep the momentum going!');
+                if ($a) {
+                    $candidates[] = $a;
+                }
             }
         }
 
@@ -94,15 +103,15 @@ class AchievementService
     }
 
     // Active Bits that have reached their weekly goal in the current week.
-    public static function bitsHittingGoal(User $user): \Illuminate\Support\Collection
+    public static function bitsHittingGoal(User $user, int $weeksAgo = 0): \Illuminate\Support\Collection
     {
         $sundayFirst = $user->week_starts_on === 'sunday';
-        $weekStart = $user->localToday()->startOfWeek($sundayFirst ? Carbon::SUNDAY : Carbon::MONDAY)->startOfDay();
+        $weekStart = $user->localToday()->startOfWeek($sundayFirst ? Carbon::SUNDAY : Carbon::MONDAY)->subWeeks($weeksAgo)->startOfDay();
         $weekISOs = collect(range(0, 6))->map(fn ($i) => $weekStart->copy()->addDays($i)->format('Y-m-d'))->all();
         $firstDay = $weekISOs[0];
         $lastDay = $weekISOs[6];
 
-        $bits = $user->bits()->where('is_system', false)->where('status', 'active')->get()
+        $bits = $user->bits()->where('is_system', false)->whereIn('status', $weeksAgo ? ['active', 'completed'] : ['active'])->get()
             ->filter(fn ($b) => (! $b->start_date || $b->start_date->format('Y-m-d') <= $lastDay)
                 && (! $b->end_date || $b->end_date->format('Y-m-d') >= $firstDay));
 
@@ -127,15 +136,15 @@ class AchievementService
         ]);
     }
 
-    public static function weeklyGoalMet(User $user): bool
+    public static function weeklyGoalMet(User $user, int $weeksAgo = 0): bool
     {
         $sundayFirst = $user->week_starts_on === 'sunday';
-        $weekStart = $user->localToday()->startOfWeek($sundayFirst ? Carbon::SUNDAY : Carbon::MONDAY)->startOfDay();
+        $weekStart = $user->localToday()->startOfWeek($sundayFirst ? Carbon::SUNDAY : Carbon::MONDAY)->subWeeks($weeksAgo)->startOfDay();
         $weekISOs = collect(range(0, 6))->map(fn ($i) => $weekStart->copy()->addDays($i)->format('Y-m-d'))->all();
         $firstDay = $weekISOs[0];
         $lastDay = $weekISOs[6];
 
-        $bits = $user->bits()->where('is_system', false)->where('status', 'active')->get()
+        $bits = $user->bits()->where('is_system', false)->whereIn('status', $weeksAgo ? ['active', 'completed'] : ['active'])->get()
             ->filter(fn ($b) => (! $b->start_date || $b->start_date->format('Y-m-d') <= $lastDay)
                 && (! $b->end_date || $b->end_date->format('Y-m-d') >= $firstDay));
 
