@@ -16,9 +16,11 @@ class SettingResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-pencil-square';
 
-    protected static ?string $navigationLabel = 'App content';
-
     protected static ?string $navigationGroup = 'Content';
+
+    protected static ?int $navigationSort = 1;
+
+    protected static ?string $navigationLabel = 'App content';
 
     // Fixed content snippets — editable, not creatable/deletable.
     public static function canCreate(): bool

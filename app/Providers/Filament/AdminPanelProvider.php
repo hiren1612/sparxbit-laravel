@@ -6,6 +6,7 @@ use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
+use Filament\Navigation\NavigationGroup;
 use Filament\Pages;
 use Filament\Panel;
 use Filament\PanelProvider;
@@ -32,6 +33,13 @@ class AdminPanelProvider extends PanelProvider
             ->brandLogo(fn () => view('filament.brand'))
             ->brandLogoHeight('2.25rem')
             ->favicon(asset('favicon.png'))
+            // Sidebar: collapse to icons on desktop; menu sections open and close.
+            ->sidebarCollapsibleOnDesktop()
+            ->navigationGroups([
+                NavigationGroup::make('People')->collapsible(),
+                NavigationGroup::make('Habits')->collapsible(),
+                NavigationGroup::make('Content')->collapsible(),
+            ])
             ->colors([
                 'primary' => Color::hex('#5b7ff0'),
             ])

@@ -16,9 +16,11 @@ class LegalPageResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
 
-    protected static ?string $navigationLabel = 'Legal pages';
-
     protected static ?string $navigationGroup = 'Content';
+
+    protected static ?int $navigationSort = 2;
+
+    protected static ?string $navigationLabel = 'Legal pages';
 
     // These are the two fixed pages (Terms, Privacy) — editable, not creatable/deletable.
     public static function canCreate(): bool
