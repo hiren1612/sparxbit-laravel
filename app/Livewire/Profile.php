@@ -32,7 +32,9 @@ class Profile extends Component
         $lastDay = $weekISOs[6];
 
         $realBits = $user->bits()->where('is_system', false)->where('status', 'active')->get();
-        $activeBits = $realBits->count();
+        // Same rule as Home's Overview: a Bit whose end date has passed isn't active.
+        $todayISO = $user->localToday()->format('Y-m-d');
+        $activeBits = $realBits->filter(fn ($b) => ! $b->end_date || $b->end_date->format('Y-m-d') >= $todayISO)->count();
 
         $allDone = Entry::where('user_id', $user->id)->where('status', 'done')->get();
         $daysTracked = $allDone->map(fn ($e) => $e->date->format('Y-m-d'))->unique()->count();
